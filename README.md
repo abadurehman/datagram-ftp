@@ -1,5 +1,5 @@
 # Datagram FTP
-A simple File Transfer Protocol client-server application using the Java Socket API.
+A simple **File Transfer Protocol** client-server application using the **Java Socket API**.
 
 ## Objective(s):
 
