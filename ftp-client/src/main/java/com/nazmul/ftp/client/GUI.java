@@ -1,24 +1,27 @@
 package com.nazmul.ftp.client;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class GUI extends JFrame implements ActionListener {
 
-    private JPanel backPanel;
-    private JToolBar toolBar;
+/**
+ * FTP Client Application
+ */
+public class GUI extends Application {
 
-    public GUI() {
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        Parent root = FXMLLoader.load(getClass().getResource("/client.fxml"));
+        primaryStage.setTitle("Hello World");
+        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.show();
     }
 
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
-    }
-
-    public void actionPerformed(ActionEvent e) {
-
+    public static void main(String... args) {
+        System.out.println("FTP Client");
+        launch(args);
     }
 }

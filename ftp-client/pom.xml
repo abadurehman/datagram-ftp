@@ -33,7 +33,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.nazmul.ftp.client.Application</mainClass>
+                    <mainClass>com.nazmul.ftp.client.GUI</mainClass>
                 </configuration>
             </plugin>
         </plugins>
