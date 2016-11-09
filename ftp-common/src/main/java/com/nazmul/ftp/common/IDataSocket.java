@@ -1,0 +1,16 @@
+package com.nazmul.ftp.common;
+
+import java.io.IOException;
+import java.net.InetAddress;
+
+public interface IDataSocket {
+
+    void sendMessage(InetAddress receiverHost,
+                     int receiverPort,
+                     String message) throws IOException;
+
+    String receiveMessage() throws IOException;
+
+    Data receiveMessageAndSender() throws IOException;
+
+}

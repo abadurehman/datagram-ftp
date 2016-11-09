@@ -2,14 +2,19 @@ package com.nazmul.ftp.client;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 import java.io.File;
-import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ResourceBundle;
@@ -28,6 +33,12 @@ public class Controller implements Initializable {
 
     @FXML
     private TextArea eventTextarea;
+
+    @FXML
+    private TreeView<String> treeView;
+
+    @FXML
+    private VBox treeBox;
 
 
     @FXML
@@ -55,5 +66,33 @@ public class Controller implements Initializable {
         }
 
         systemTreeview.setRoot(root);
+    }
+
+    public void generateVbox() {
+        //create tree pane
+        treeBox.setPadding(new Insets(10, 10, 10, 10));
+        treeBox.setSpacing(10);
+        //setup the file browser root
+        String hostName = "localhost";
+        try {
+            hostName = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException x) {
+        }
+        TreeItem<String> rootNode = new TreeItem<String>(hostName,
+                new ImageView(new Image(String.valueOf(getClass().getResource("/icons/computer.png")))));
+        Iterable<Path> rootDirectories = FileSystems.getDefault().getRootDirectories();
+        for (Path name : rootDirectories) {
+            FilePathTreeItem treeNode = new FilePathTreeItem(name);
+            rootNode.getChildren().add(treeNode);
+        }
+        rootNode.setExpanded(true);
+        //create the tree view
+        treeView.setRoot(rootNode);
+        //add everything to the tree pane
+        treeBox.getChildren().addAll(new Label("File browser"), treeView);
+//        VBox.setVgrow(treeView, Priority.ALWAYS);
+//        StackPane root=new StackPane();
+//        root.getChildren().addAll(treeBox);
+//        treeBox.getChildren().add(treeBox);
     }
 }

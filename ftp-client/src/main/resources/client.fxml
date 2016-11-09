@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -13,6 +12,7 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
 
 <FlowPane maxHeight="768.0" maxWidth="1024.0" minHeight="768" minWidth="1024" prefHeight="1024" prefWidth="768" rowValignment="TOP" xmlns="http://javafx.com/javafx/8.0.112-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.nazmul.ftp.client.Controller">
    <children>
@@ -24,7 +24,7 @@
                     <menus>
                       <Menu mnemonicParsing="false" text="File">
                         <items>
-                          <MenuItem mnemonicParsing="false" text="Close" />
+                          <MenuItem fx:id="menuItemStartServer" text="Start server" />
                         </items>
                       </Menu>
                       <Menu mnemonicParsing="false" text="Edit">
@@ -50,11 +50,15 @@
                   </ToolBar>
                   <TextArea fx:id="logTextarea" editable="false" layoutX="-2.0" layoutY="69.0" prefHeight="179.0" prefWidth="1024.0" wrapText="true" />
                </children></AnchorPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="536.0" prefWidth="1022.0">
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="519.0" prefWidth="1022.0">
                <children>
                   <FlowPane layoutY="-6.0">
                      <children>
-                        <TreeView fx:id="systemTreeview" prefHeight="393.0" prefWidth="476.0" />
+                        <VBox>
+                           <children>
+                              <TreeView fx:id="systemTreeview" prefHeight="393.0" prefWidth="476.0" />
+                           </children>
+                        </VBox>
                      </children>
                   </FlowPane>
                   <FlowPane layoutX="-2.0" layoutY="387.0">
@@ -62,11 +66,11 @@
                         <TextArea fx:id="eventTextarea" editable="false" prefHeight="122.0" prefWidth="1024.0" wrapText="true" />
                      </children>
                   </FlowPane>
-                  <FlowPane layoutX="475.0" layoutY="-6.0">
+                  <VBox fx:id="treeBox" layoutX="483.0" layoutY="-4.0">
                      <children>
-                        <ListView prefHeight="393.0" prefWidth="548.0" />
+                        <TreeView fx:id="treeView" fixedCellSize="-3.0" onMouseClicked="#generateVbox" prefHeight="381.0" prefWidth="534.0" />
                      </children>
-                  </FlowPane>
+                  </VBox>
                </children></AnchorPane>
         </items>
       </SplitPane>
