@@ -21,15 +21,14 @@ public class Server {
             // instantiates a datagram socket for both sending
             // and receiving data
             DataSocket mySocket = new DataSocket(port);
-            System.out.println("Echo server ready.");
+            System.out.println("FTP server ready.");
             while (true) {  // forever loop
                 Data request = mySocket.receiveMessageAndSender();
                 System.out.println("Request received");
                 String message = request.getMessage();
                 System.out.println("message received: " + message);
                 // Now send the echo to the requestor
-                mySocket.sendMessage(request.getHost(),
-                        request.getPort(), message);
+                mySocket.sendMessage(request.getHost(), request.getPort(), message);
             }
         }
         catch (Exception ex) {
