@@ -52,9 +52,21 @@
                </children></AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="536.0" prefWidth="1022.0">
                <children>
-                  <TreeView layoutY="-6.0" prefHeight="393.0" prefWidth="456.0" />
-                  <TextArea fx:id="uploadTextarea" editable="false" layoutX="-2.0" layoutY="387.0" prefHeight="122.0" prefWidth="1024.0" wrapText="true" />
-                  <ListView layoutX="456.0" layoutY="-6.0" prefHeight="393.0" prefWidth="564.0" />
+                  <FlowPane layoutY="-6.0">
+                     <children>
+                        <TreeView fx:id="systemTreeview" prefHeight="393.0" prefWidth="476.0" />
+                     </children>
+                  </FlowPane>
+                  <FlowPane layoutX="-2.0" layoutY="387.0">
+                     <children>
+                        <TextArea fx:id="eventTextarea" editable="false" prefHeight="122.0" prefWidth="1024.0" wrapText="true" />
+                     </children>
+                  </FlowPane>
+                  <FlowPane layoutX="475.0" layoutY="-6.0">
+                     <children>
+                        <ListView prefHeight="393.0" prefWidth="548.0" />
+                     </children>
+                  </FlowPane>
                </children></AnchorPane>
         </items>
       </SplitPane>
