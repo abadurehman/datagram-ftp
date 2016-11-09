@@ -40,6 +40,8 @@ public class Controller implements Initializable {
     @FXML
     private VBox treeBox;
 
+    @FXML
+    private MenuItem menuItemStartServer;
 
     @FXML
     public void test() {
@@ -94,5 +96,12 @@ public class Controller implements Initializable {
 //        StackPane root=new StackPane();
 //        root.getChildren().addAll(treeBox);
 //        treeBox.getChildren().add(treeBox);
+    }
+
+    @FXML
+    public void serverDialog() {
+        InitializeServer dialog = new InitializeServer();
+        dialog.pack();
+        dialog.setVisible(true);
     }
 }
