@@ -7,7 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 
 public abstract class AbstractSocket extends DatagramSocket implements IDataSocket {
-    protected static final int MAX_LEN = 100;
+    protected static final int MAX_LEN = 1024;
 
     protected AbstractSocket() throws SocketException {
     }

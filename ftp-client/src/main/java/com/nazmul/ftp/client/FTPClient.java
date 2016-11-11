@@ -3,11 +3,6 @@ package com.nazmul.ftp.client;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-/**
- * This module contains the presentaton logic of an Echo Client.
- *
- * @author M. L. Liu
- */
 public class FTPClient {
     static final String endMessage = ".";
 
@@ -55,9 +50,13 @@ public class FTPClient {
             if (password.isEmpty()) {
                 password = "demo";
             }
+            StringBuffer bufPas = new StringBuffer();
+            bufPas.append(password);
+            bufPas.append("!");
+            String pass = bufPas.toString();
 
-            ClientHelper helper = new ClientHelper(hostName, portNum, opcode, username, password);
-            String auth = helper.authenticate(opcode, username, password);
+            ClientHelper helper = new ClientHelper(hostName, portNum, opcode, username, pass);
+            String auth = helper.authenticate(opcode, username, pass);
 
             String echo = "";
             boolean done = false;

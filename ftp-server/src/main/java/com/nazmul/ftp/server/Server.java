@@ -2,19 +2,10 @@ package com.nazmul.ftp.server;
 
 import com.nazmul.ftp.common.Data;
 import com.nazmul.ftp.common.DataSocket;
-import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.util.Utils;
+import com.nazmul.ftp.server.auth.User;
 import com.nazmul.ftp.server.session.LoginPacket;
-import com.sun.media.jfxmedia.logging.Logger;
 
-/**
- * This module contains the application logic of an echo server
- * which uses a connectionless datagram socket for interprocess
- * communication.
- * A command-line argument is required to specify the server port.
- *
- * @author M. L. Liu
- */
 public class Server {
     public static void run(String... args) {
         int port = 3000;    // default port
@@ -22,35 +13,26 @@ public class Server {
             port = Integer.parseInt(args[0]);
         }
         try {
-            DataSocket mySocket = new DataSocket(port);
+            DataSocket serverSocket = new DataSocket(port);
             System.out.println("Status: FTP server ready");
 
-            while (true) {
-                Data request = mySocket.receiveCredentials();
-                String message = request.getMessage();
+            Data loginRequest = serverSocket.receiveCredentials();
+            String message = loginRequest.getMessage();
+            short opcode = Utils.extractOpcode(message);
 
-                short opcode = Utils.extractOpcode(message);
-                LoginPacket loginPacket = new LoginPacket();
-                if (opcode == 600) {
-                    System.out.println("Status: Authentication request received");
-                    String username = Utils.extractUsername(message);
-                    String password = Utils.extractPassword(message);
-                    try {
-                        loginPacket.authenticate(username, password);
-                    } catch (InvalidArgException exc) {
-                        mySocket.sendMessage(request.getHost(), request.getPort(), "Status : " + exc.getMessage());
-                        System.out.println("Status: Authentication unsuccessful");
-                    }
-                    mySocket.sendMessage(request.getHost(), request.getPort(), "Logged in");
-                    System.out.println("Status: Authenticated");
-                }
-                System.out.println("No opcode");
+            LoginPacket loginPacket = new LoginPacket();
+            User loggedInUser = loginPacket.processAuthentication(opcode, message, loginRequest, serverSocket);
 
+            while (loggedInUser.isAuthenticated()) {
+                Data newRequest = serverSocket.receiveMessageAndSender();
+                String commands = loginRequest.getMessage();
+                serverSocket.sendMessage(loginRequest.getHost(), loginRequest.getPort(), commands);
             }
-        }
-        catch (Exception ex) {
+
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
+
 
 }

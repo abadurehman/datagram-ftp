@@ -20,7 +20,8 @@ public class Utils {
     }
 
     public static String extractPassword(String str) {
-        int passIndex = str.indexOf('@');
-        return str.substring(passIndex, str.length()-1);
+        int passIndex = str.indexOf('@') + 1;
+        int lastIndex = str.lastIndexOf('!');
+        return str.substring(passIndex, lastIndex);
     }
 }

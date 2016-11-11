@@ -1,6 +1,9 @@
 package com.nazmul.ftp.server.auth;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
+    private static final long serialVersionUID = 8926172900507200798L;
     private String username;
     private String password;
     private boolean authenticated;
@@ -42,6 +45,28 @@ public class User {
     public void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (authenticated != user.authenticated) return false;
+        if (username != null ? !username.equals(user.username) : user.username != null) return false;
+        return password != null ? password.equals(user.password) : user.password == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = username != null ? username.hashCode() : 0;
+        result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (authenticated ? 1 : 0);
+        return result;
+    }
+
 
     @Override
     public String toString() {
