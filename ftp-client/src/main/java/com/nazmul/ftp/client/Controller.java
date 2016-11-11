@@ -6,7 +6,6 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.io.File;

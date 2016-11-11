@@ -21,8 +21,7 @@ public class DataSocket extends AbstractSocket {
 
     public Data receiveMessageAndSender() throws IOException {
         byte[] receiveBuffer = new byte[MAX_LEN];
-        DatagramPacket datagram =
-                new DatagramPacket(receiveBuffer, MAX_LEN);
+        DatagramPacket datagram = new DatagramPacket(receiveBuffer, MAX_LEN);
         receive(datagram);
         // create a DatagramMessage object, to contain message
         //   received and sender's address
@@ -30,4 +29,21 @@ public class DataSocket extends AbstractSocket {
         returnVal.putVal(new String(receiveBuffer), datagram.getAddress(), datagram.getPort());
         return returnVal;
     }
+
+    public Data receiveCredentials() throws IOException {
+        byte[] receiveBuffer = new byte[MAX_LEN];
+        DatagramPacket datagram = new DatagramPacket(receiveBuffer, MAX_LEN);
+        receive(datagram);
+
+        Data returnVal = new Data();
+        returnVal
+                .putCredentials(
+                        datagram.getAddress(),
+                        datagram.getPort(),
+                        new String(receiveBuffer));
+
+        return returnVal;
+    }
+
+
 }

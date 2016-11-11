@@ -35,4 +35,21 @@ public abstract class AbstractSocket extends DatagramSocket implements IDataSock
         return message;
     }
 
+    public void login(InetAddress host,
+                      int port,
+                      String opcode,
+                      String username,
+                      String password)
+            throws IOException {
+        byte[] code = opcode.getBytes();
+        byte[] user = username.getBytes();
+        byte[] pass = password.getBytes();
+        byte[] sendBuffer = new byte[code.length + user.length + pass.length];
+        System.arraycopy(code, 0, sendBuffer, 0, code.length);
+        System.arraycopy(user, 0, sendBuffer, code.length, user.length);
+        System.arraycopy(pass, 0, sendBuffer, code.length + user.length, pass.length);
+        DatagramPacket datagram = new DatagramPacket(sendBuffer, sendBuffer.length, host, port);
+        send(datagram);
+    }
+
 }

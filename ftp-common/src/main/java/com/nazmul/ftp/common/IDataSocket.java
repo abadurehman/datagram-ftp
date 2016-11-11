@@ -9,6 +9,8 @@ public interface IDataSocket {
                      int receiverPort,
                      String message) throws IOException;
 
+    void login(InetAddress host, int port, String opcode, String username, String password) throws IOException;
+
     String receiveMessage() throws IOException;
 
     Data receiveMessageAndSender() throws IOException;

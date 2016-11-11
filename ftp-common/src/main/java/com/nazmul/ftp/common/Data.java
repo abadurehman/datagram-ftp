@@ -2,16 +2,17 @@ package com.nazmul.ftp.common;
 
 import java.net.InetAddress;
 
-/**
- * Created by nazmul on 09/11/16.
- */
 public class Data {
 
-    private String message;
     private InetAddress host;
     private int port;
+    private String message;
 
     public Data() {
+    }
+
+    public Data(String message) {
+        this.message = message;
     }
 
     public Data(String message, InetAddress host, int port) {
@@ -24,6 +25,14 @@ public class Data {
         this.message = message;
         this.host = host;
         this.port = port;
+    }
+
+    public void putCredentials(InetAddress host,
+                               int port,
+                               String message) {
+        this.host = host;
+        this.port = port;
+        this.message = message;
     }
 
     public String getMessage() {
@@ -49,4 +58,5 @@ public class Data {
     public void setPort(int port) {
         this.port = port;
     }
+
 }

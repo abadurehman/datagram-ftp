@@ -2,6 +2,10 @@ package com.nazmul.ftp.server;
 
 import com.nazmul.ftp.common.Data;
 import com.nazmul.ftp.common.DataSocket;
+import com.nazmul.ftp.common.exception.InvalidArgException;
+import com.nazmul.ftp.common.util.Utils;
+import com.nazmul.ftp.server.session.LoginPacket;
+import com.sun.media.jfxmedia.logging.Logger;
 
 /**
  * This module contains the application logic of an echo server
@@ -18,21 +22,35 @@ public class Server {
             port = Integer.parseInt(args[0]);
         }
         try {
-            // instantiates a datagram socket for both sending
-            // and receiving data
             DataSocket mySocket = new DataSocket(port);
-            System.out.println("FTP server ready.");
-            while (true) {  // forever loop
-                Data request = mySocket.receiveMessageAndSender();
-                System.out.println("Request received");
+            System.out.println("Status: FTP server ready");
+
+            while (true) {
+                Data request = mySocket.receiveCredentials();
                 String message = request.getMessage();
-                System.out.println("message received: " + message);
-                // Now send the echo to the requestor
-                mySocket.sendMessage(request.getHost(), request.getPort(), message);
+
+                short opcode = Utils.extractOpcode(message);
+                LoginPacket loginPacket = new LoginPacket();
+                if (opcode == 600) {
+                    System.out.println("Status: Authentication request received");
+                    String username = Utils.extractUsername(message);
+                    String password = Utils.extractPassword(message);
+                    try {
+                        loginPacket.authenticate(username, password);
+                    } catch (InvalidArgException exc) {
+                        mySocket.sendMessage(request.getHost(), request.getPort(), "Status : " + exc.getMessage());
+                        System.out.println("Status: Authentication unsuccessful");
+                    }
+                    mySocket.sendMessage(request.getHost(), request.getPort(), "Logged in");
+                    System.out.println("Status: Authenticated");
+                }
+                System.out.println("No opcode");
+
             }
         }
         catch (Exception ex) {
             ex.printStackTrace();
         }
     }
+
 }

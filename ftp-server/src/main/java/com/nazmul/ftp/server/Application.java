@@ -5,7 +5,6 @@ package com.nazmul.ftp.server;
  */
 public class Application {
     public static void main(String ... args) {
-        System.out.println("FTP server");
         Server.run(args);
     }
 }
