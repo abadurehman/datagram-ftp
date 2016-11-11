@@ -24,4 +24,12 @@ public class Utils {
         int lastIndex = str.lastIndexOf('!');
         return str.substring(passIndex, lastIndex);
     }
+
+    public static boolean fieldStartsWith(String str, char ch) {
+        return str.charAt(0) == ch;
+    }
+
+    public static boolean fieldEndsWith(String str, char ch) {
+        return str.charAt(str.length()-1) == ch;
+    }
 }

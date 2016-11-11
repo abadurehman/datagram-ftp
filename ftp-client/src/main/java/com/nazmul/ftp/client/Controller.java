@@ -1,25 +1,34 @@
 package com.nazmul.ftp.client;
 
+import com.nazmul.ftp.common.exception.InvalidArgException;
+import com.nazmul.ftp.common.util.Utils;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.net.URL;
+import java.io.IOException;
+import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ResourceBundle;
 
 
-public class Controller implements Initializable {
+public class Controller {
+
+    @FXML
+    private MenuItem menuItemStartServer;
+
+    @FXML
+    private TextField hostField;
+
+    @FXML
+    private TextField portField;
+
+    @FXML
+    private TextField usernameField;
+
+    @FXML
+    private TextField passwordField;
 
     @FXML
     private TextArea logTextarea;
@@ -28,73 +37,85 @@ public class Controller implements Initializable {
     private Button connectButton;
 
     @FXML
-    private TreeView<File> systemTreeview;
+    private Button uploadButton;
 
     @FXML
-    private TextArea eventTextarea;
+    private Button downloadButton;
 
     @FXML
-    private TreeView<String> treeView;
+    public void login() {
+        if ("Connect".equals(connectButton.getText())) {
+            String auth = "";
+            try {
+                String username = validUsername(usernameField);
+                String password = validPassword(passwordField);
 
-    @FXML
-    private VBox treeBox;
+                ClientHelper helper = new ClientHelper(hostField.getText(), portField.getText(), "600", username, password);
+                logTextarea.appendText("Status: Logging into " + hostField.getText() + "\n");
+                auth = helper.authenticate("600", usernameField.getText(), passwordField.getText());
 
-    @FXML
-    private MenuItem menuItemStartServer;
-
-    @FXML
-    public void test() {
-        logTextarea.appendText(LocalDate.now() + " " + LocalTime.now() + ": You have successfully connected to the system!\n");
-    }
-
-
-    public void initialize(URL location, ResourceBundle resources) {
-        File currentDir = new File("/home/nazmul/Desktop/datagram-ftp"); // current directory
-        findFiles(currentDir);
-    }
-
-    public void findFiles(File dir) {
-        TreeItem<File> root = new TreeItem<File>(new File("Files:"));
-        root.setExpanded(true);
-        File[] files = dir.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                findFiles(file);
-            } else {
-                root.getChildren().add(new TreeItem<File>(file));
+            } catch (SocketException e) {
+                logTextarea.appendText("Status: " + e.getMessage() + "\n");
+            } catch (UnknownHostException e) {
+                logTextarea.appendText("Status: " + e.getMessage() + "\n");
+            } catch (IOException e) {
+                logTextarea.appendText("Status: " + e.getMessage() + "\n");
+            } catch (InvalidArgException e) {
+                logTextarea.appendText("Status: " + e.getMessage() + "\n");
             }
-            root.getChildren().add(new TreeItem<File>(file));
-        }
 
-        systemTreeview.setRoot(root);
+            logTextarea.appendText("Status: " + auth + "\n");
+            connectButton.setText("Disconnect");
+            hostField.setDisable(true);
+            usernameField.setDisable(true);
+            passwordField.setDisable(true);
+            portField.setDisable(true);
+            uploadButton.setDisable(false);
+            downloadButton.setDisable(false);
+
+        } else {
+
+            try {
+                ClientHelper client = new ClientHelper(
+                        hostField.getText(), portField.getText(),
+                        "700", usernameField.getText(), passwordField.getText());
+                String logOut = client.sendRequest("700" + usernameField.getText() + passwordField.getText());
+                logTextarea.appendText("Status: " + logOut + "\n");
+
+                connectButton.setText("Connect");
+                hostField.setDisable(false);
+                usernameField.setDisable(false);
+                passwordField.setDisable(false);
+                portField.setDisable(false);
+                uploadButton.setDisable(true);
+                downloadButton.setDisable(true);
+
+            } catch (SocketException e) {
+                logTextarea.appendText("Status: " + e.getMessage() + "\n");
+            } catch (UnknownHostException e) {
+                logTextarea.appendText("Status: " + e.getMessage() + "\n");
+            } catch (IOException e) {
+                logTextarea.appendText("Status: " + e.getMessage() + "\n");
+            }
+        }
     }
 
-    public void generateVbox() {
-        //create tree pane
-        treeBox.setPadding(new Insets(10, 10, 10, 10));
-        treeBox.setSpacing(10);
-        //setup the file browser root
-        String hostName = "localhost";
-        try {
-            hostName = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException x) {
+    private String validPassword(TextField passwordField) throws InvalidArgException {
+        String password = passwordField.getText();
+        if (Utils.fieldEndsWith(password, '!')) {
+            return password;
+        } else {
+            throw new InvalidArgException("Invalid password, should end with ! \n");
         }
-        TreeItem<String> rootNode = new TreeItem<String>(hostName,
-                new ImageView(new Image(String.valueOf(getClass().getResource("/icons/computer.png")))));
-        Iterable<Path> rootDirectories = FileSystems.getDefault().getRootDirectories();
-        for (Path name : rootDirectories) {
-            FilePathTreeItem treeNode = new FilePathTreeItem(name);
-            rootNode.getChildren().add(treeNode);
+    }
+
+    private String validUsername(TextField usernameField) throws InvalidArgException {
+        String username = usernameField.getText();
+        if (Utils.fieldStartsWith(username, '!') && Utils.fieldEndsWith(username, '@')) {
+            return username;
+        } else {
+            throw new InvalidArgException("Invalid username, should start with ! and end with @ \n");
         }
-        rootNode.setExpanded(true);
-        //create the tree view
-        treeView.setRoot(rootNode);
-        //add everything to the tree pane
-        treeBox.getChildren().addAll(new Label("File browser"), treeView);
-//        VBox.setVgrow(treeView, Priority.ALWAYS);
-//        StackPane root=new StackPane();
-//        root.getChildren().addAll(treeBox);
-//        treeBox.getChildren().add(treeBox);
     }
 
     @FXML

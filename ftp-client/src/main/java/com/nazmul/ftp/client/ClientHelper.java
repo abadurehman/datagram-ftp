@@ -26,11 +26,9 @@ public class ClientHelper {
             throws SocketException, UnknownHostException {
         serverHost = InetAddress.getByName(hostName);
         serverPort = Integer.parseInt(portNum);
-        username = "test";
-        password = "test";
+        username = "login";
+        password = "login";
         opcode = 0;
-        // instantiates a datagram socket for both sending
-        // and receiving data
         mySocket = new DataSocket();
     }
 
@@ -49,10 +47,9 @@ public class ClientHelper {
         return mySocket.receiveMessage();
     }
 
-    public String getEcho(String message)
+    public String sendRequest(String message)
             throws IOException {
         mySocket.sendMessage(serverHost, serverPort, message);
-        // now receive the echo
         return mySocket.receiveMessage();
     }
 

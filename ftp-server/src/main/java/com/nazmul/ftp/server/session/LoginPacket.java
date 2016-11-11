@@ -34,28 +34,39 @@ public class LoginPacket {
     public User processAuthentication(short opcode, String message, Data request, DataSocket mySocket)
             throws IOException {
 
+        User loggedInUser = new User();
+        String username = Utils.extractUsername(message);
+        String password = Utils.extractPassword(message);
+
         switch (opcode) {
 
             case ProtocolCode.LOGIN:
                 System.out.println("Status: Authentication request received");
-                String username = Utils.extractUsername(message);
-                String password = Utils.extractPassword(message);
 
-                User loggedInUser = new User();
                 try {
                     loggedInUser = validateUser(username, password);
                     mySocket.sendMessage(request.getHost(), request.getPort(), "Logged in");
                     System.out.println("Status: Authenticated");
 
                 } catch (InvalidArgException exc) {
-                    mySocket.sendMessage(request.getHost(), request.getPort(), "Status : " + exc.getMessage());
+                    mySocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
                     System.out.println("Status: Authentication unsuccessful");
                 }
                 return loggedInUser;
 
             case ProtocolCode.LOGOUT:
-                mySocket.sendMessage(request.getHost(), request.getPort(), "Logged out");
-                break;
+                System.out.println("Status: Disconnect request received");
+                try {
+                    loggedInUser = validateUser(username, password);
+                    mySocket.sendMessage(request.getHost(), request.getPort(), "Logged out");
+                    loggedInUser.setAuthenticated(false);
+                    System.out.println("Status: User logged out");
+
+                } catch (InvalidArgException exc) {
+                    mySocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
+                    System.out.println("Status: Disconnect unsuccessful");
+                }
+                return loggedInUser;
 
             default:
                 mySocket.sendMessage(request.getHost(), request.getPort(), "Invalid operation code");

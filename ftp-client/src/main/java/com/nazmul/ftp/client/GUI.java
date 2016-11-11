@@ -21,9 +21,7 @@ public class GUI extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/client.fxml"));
         primaryStage.setTitle("Datagram FTP");
-//        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds(); // full length window
-//        primaryStage.setScene(new Scene(root, screenBounds.getWidth(), screenBounds.getHeight()));
-        primaryStage.setScene(new Scene(root, 1024, 768));
+        primaryStage.setScene(new Scene(root, 720, 576));
         primaryStage.setResizable(false);
 
         primaryStage.show();
