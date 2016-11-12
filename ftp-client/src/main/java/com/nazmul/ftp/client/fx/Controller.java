@@ -1,5 +1,6 @@
-package com.nazmul.ftp.client;
+package com.nazmul.ftp.client.fx;
 
+import com.nazmul.ftp.client.ClientHelper;
 import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
 import com.nazmul.ftp.common.protocol.ResponseCode;
@@ -154,13 +155,6 @@ public class Controller {
             return username;
         }
         throw new InvalidArgException("Username delimiter is not provided. It must start with '!' and end with '@'");
-    }
-
-    @FXML
-    public void serverDialog() {
-        InitializeServer dialog = new InitializeServer();
-        dialog.pack();
-        dialog.setVisible(true);
     }
 
     private void onResponseCode(short code) {

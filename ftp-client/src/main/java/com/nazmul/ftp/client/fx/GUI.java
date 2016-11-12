@@ -1,4 +1,4 @@
-package com.nazmul.ftp.client;
+package com.nazmul.ftp.client.fx;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
