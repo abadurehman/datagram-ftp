@@ -1,7 +1,6 @@
 package com.nazmul.ftp.client.ui;
 
 import com.nazmul.ftp.client.ClientHelper;
-import com.nazmul.ftp.client.fx.Controller;
 import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
 import com.nazmul.ftp.common.protocol.ResponseCode;
@@ -20,6 +19,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -40,7 +40,7 @@ public class UiWindow extends JFrame implements ActionListener {
 
     private static final long serialVersionUID = 1525110630375067115L;
 
-    static final Logger logger = Logger.getLogger(UiWindow.class);
+    static final Logger LOGGER = Logger.getLogger(UiWindow.class);
     static final String LOGIN = String.valueOf(ProtocolCode.LOGIN);
     static final String LOGOUT = String.valueOf(ProtocolCode.LOGOUT);
     static final String DEFAULT_REMOTE_INPUT = "File name on the server";
@@ -102,7 +102,7 @@ public class UiWindow extends JFrame implements ActionListener {
 
         /** Server informations **/
         top = new JPanel();
-        top.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 15));
+        top.setLayout(new FlowLayout(FlowLayout.LEADING, 5, 15));
         top.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
         serverLabel = new JLabel("Host: ");
@@ -128,13 +128,13 @@ public class UiWindow extends JFrame implements ActionListener {
         loginButton = new JButton("Connect");
         loginButton.setPreferredSize(new Dimension(150, 20));
 
-        progressBar = new JProgressBar(JProgressBar.HORIZONTAL, 0, 100);
+        progressBar = new JProgressBar(SwingConstants.HORIZONTAL, 0, 100);
         progressBar.setVisible(false);
         progressBar.setStringPainted(true);
         progressBar.getSize().width += 60;
         progressBar.getSize().height += 20;
 
-        add(top, BorderLayout.NORTH);
+        add(top, BorderLayout.PAGE_START);
 
         top.add(serverLabel);
         top.add(serverInput);
@@ -161,21 +161,7 @@ public class UiWindow extends JFrame implements ActionListener {
         remoteUploadFileNameInput = new JTextField(DEFAULT_REMOTE_INPUT);
 
         //Simulate prompt
-        remoteUploadFileNameInput.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (remoteUploadFileNameInput.getText().equalsIgnoreCase(DEFAULT_REMOTE_INPUT)) {
-                    remoteUploadFileNameInput.setText("");
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (remoteUploadFileNameInput.getText().equalsIgnoreCase("")) {
-                    remoteUploadFileNameInput.setText(DEFAULT_REMOTE_INPUT);
-                }
-            }
-        });
+        remoteUploadFileNameInput.addFocusListener(new UploadFocusListener());
 
         uploadChooser = new JFileChooser();
         uploadChooser.setDialogType(JFileChooser.OPEN_DIALOG);
@@ -196,21 +182,7 @@ public class UiWindow extends JFrame implements ActionListener {
         remoteDownloadFileNameInput = new JTextField(DEFAULT_REMOTE_INPUT);
 
         //Simulate prompt
-        remoteDownloadFileNameInput.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (remoteDownloadFileNameInput.getText().equalsIgnoreCase(DEFAULT_REMOTE_INPUT)) {
-                    remoteDownloadFileNameInput.setText("");
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (remoteDownloadFileNameInput.getText().equalsIgnoreCase("")) {
-                    remoteDownloadFileNameInput.setText(DEFAULT_REMOTE_INPUT);
-                }
-            }
-        });
+        remoteDownloadFileNameInput.addFocusListener(new DownloadFocusListener());
 
         downloadChooser = new JFileChooser();
         downloadChooser.setDialogType(JFileChooser.DIRECTORIES_ONLY);
@@ -324,19 +296,17 @@ public class UiWindow extends JFrame implements ActionListener {
     }
 
     private String validServerPort(JTextField portField) throws InvalidArgException {
-        final String DEFAULT_PORT = "3000";
         if(portField.getText().isEmpty()) {
             throw new InvalidArgException("Server port cannot be empty");
         }
-        return DEFAULT_PORT;
+        return "3000";
     }
 
     private String validHostAddress(JTextField hostField) throws InvalidArgException {
-        final String DEFAULT_HOST = "localhost";
         if(hostField.getText().isEmpty()) {
             throw new InvalidArgException("Server address cannot be empty");
         }
-        return DEFAULT_HOST;
+        return "localhost";
     }
 
     private String validPassword(JPasswordField passwordField) throws InvalidArgException {
@@ -392,7 +362,35 @@ public class UiWindow extends JFrame implements ActionListener {
                 logArea.append("Status: " + code + " Syntax error in parameters or arguments\n");
                 break;
             default:
-                logger.info("Invalid response code");
+                LOGGER.info("Invalid response code");
+        }
+    }
+
+    private class UploadFocusListener implements FocusListener {
+        public void focusGained(FocusEvent e) {
+            if (remoteUploadFileNameInput.getText().equalsIgnoreCase(DEFAULT_REMOTE_INPUT)) {
+                remoteUploadFileNameInput.setText("");
+            }
+        }
+
+        public void focusLost(FocusEvent e) {
+            if ("".equalsIgnoreCase(remoteUploadFileNameInput.getText())) {
+                remoteUploadFileNameInput.setText(DEFAULT_REMOTE_INPUT);
+            }
+        }
+    }
+
+    private class DownloadFocusListener implements FocusListener {
+        public void focusGained(FocusEvent e) {
+            if (remoteDownloadFileNameInput.getText().equalsIgnoreCase(DEFAULT_REMOTE_INPUT)) {
+                remoteDownloadFileNameInput.setText("");
+            }
+        }
+
+        public void focusLost(FocusEvent e) {
+            if ("".equalsIgnoreCase(remoteDownloadFileNameInput.getText())) {
+                remoteDownloadFileNameInput.setText(DEFAULT_REMOTE_INPUT);
+            }
         }
     }
 }
