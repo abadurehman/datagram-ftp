@@ -1,4 +1,4 @@
-package com.nazmul.ftp.server.protocol;
+package com.nazmul.ftp.common.protocol;
 
 public enum ProtocolCode {
     ;

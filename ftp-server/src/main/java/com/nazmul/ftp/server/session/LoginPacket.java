@@ -6,19 +6,22 @@ import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.util.Utils;
 import com.nazmul.ftp.server.auth.User;
 import com.nazmul.ftp.server.auth.service.UserServiceImpl;
-import com.nazmul.ftp.server.protocol.ProtocolCode;
+import com.nazmul.ftp.common.protocol.ProtocolCode;
+import com.nazmul.ftp.common.protocol.ResponseCode;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
 public class LoginPacket {
 
+    static final Logger logger = Logger.getLogger(LoginPacket.class);
     private final UserServiceImpl userService = new UserServiceImpl();
     private boolean authenticated;
 
     private User validateUser(String username, String password) throws InvalidArgException {
         User checkUser = userService.findByUsername(username);
         if (checkUser == null) {
-            throw new InvalidArgException("User does not exist in the system");
+            throw new InvalidArgException(String.valueOf(ResponseCode.INVALID_USERNAME_OR_PASSWORD));
         }
 
         // Authenticate user
@@ -27,7 +30,7 @@ public class LoginPacket {
             return checkUser;
         }
 
-        throw new InvalidArgException("Invalid password");
+        throw new InvalidArgException(String.valueOf(ResponseCode.INVALID_USERNAME_OR_PASSWORD));
     }
 
 
@@ -41,35 +44,34 @@ public class LoginPacket {
         switch (opcode) {
 
             case ProtocolCode.LOGIN:
-                System.out.println("Status: Authentication request received");
-
+                logger.info("Authentication request received");
                 try {
                     loggedInUser = validateUser(username, password);
-                    mySocket.sendMessage(request.getHost(), request.getPort(), "Logged in");
-                    System.out.println("Status: Authenticated");
+                    mySocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED));
+                    logger.info("Authenticated");
 
                 } catch (InvalidArgException exc) {
                     mySocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
-                    System.out.println("Status: Authentication unsuccessful");
+                    logger.info("Authentication unsuccessful");
                 }
                 return loggedInUser;
 
             case ProtocolCode.LOGOUT:
-                System.out.println("Status: Disconnect request received");
+                logger.info("Disconnect request received");
                 try {
                     loggedInUser = validateUser(username, password);
-                    mySocket.sendMessage(request.getHost(), request.getPort(), "Logged out");
+                    mySocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED));
                     loggedInUser.setAuthenticated(false);
-                    System.out.println("Status: User logged out");
+                    logger.info("User logged out");
 
                 } catch (InvalidArgException exc) {
                     mySocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
-                    System.out.println("Status: Disconnect unsuccessful");
+                    logger.debug("Disconnect unsuccessful");
                 }
                 return loggedInUser;
 
             default:
-                mySocket.sendMessage(request.getHost(), request.getPort(), "Invalid operation code");
+                mySocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED));
 
         }
         return null;

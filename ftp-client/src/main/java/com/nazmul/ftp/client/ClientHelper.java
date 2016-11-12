@@ -22,7 +22,7 @@ public class ClientHelper {
     private final String password;
 
 
-    ClientHelper(String hostName, String portNum)
+    public ClientHelper(String hostName, String portNum)
             throws SocketException, UnknownHostException {
         serverHost = InetAddress.getByName(hostName);
         serverPort = Integer.parseInt(portNum);
@@ -32,7 +32,7 @@ public class ClientHelper {
         mySocket = new DataSocket();
     }
 
-    ClientHelper(String host, String port, String opcode, String username, String password)
+    public ClientHelper(String host, String port, String opcode, String username, String password)
             throws SocketException, UnknownHostException {
         serverHost = InetAddress.getByName(host);
         serverPort = Integer.parseInt(port);

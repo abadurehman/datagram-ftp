@@ -20,10 +20,17 @@
     </properties>
 
     <dependencies>
+        <!-- COMMON -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ftp-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- LOGGER -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
         </dependency>
     </dependencies>
 

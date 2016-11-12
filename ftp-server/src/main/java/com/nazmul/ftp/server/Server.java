@@ -5,14 +5,17 @@ import com.nazmul.ftp.common.DataSocket;
 import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.util.Utils;
 import com.nazmul.ftp.server.auth.User;
-import com.nazmul.ftp.server.protocol.ProtocolCode;
+import com.nazmul.ftp.common.protocol.ProtocolCode;
 import com.nazmul.ftp.server.session.LoginPacket;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.BindException;
 import java.net.SocketException;
 
 public class Server {
+    static final Logger logger = Logger.getLogger(Server.class);
+
     public static void run(String... args) {
         int port = 3000;    // default port
         if (args.length == 1) {
@@ -20,7 +23,7 @@ public class Server {
         }
         try {
             DataSocket socket = new DataSocket(port);
-            System.out.println("Status: FTP server ready");
+            logger.info("FTP server ready");
 
             Data loginRequest = socket.receiveCredentials();
             String loginReqMessage = loginRequest.getMessage();
@@ -40,18 +43,17 @@ public class Server {
                 } else if (loggedInUser != null && !loggedInUser.isAuthenticated()) {
                     loggedInUser = packet.processAuthentication(opcode, message, request, socket);
                 }
-
             }
 
 
         } catch (BindException e) {
-            System.out.println("Status: Port is not available");
+            logger.debug("Port is not available");
         } catch (SocketException e) {
-            System.out.println("Status: " + e.getMessage());
+            logger.debug(e.getMessage());
         } catch (IOException e) {
-            System.out.println("Status: " + e.getMessage());
+            logger.debug(e.getMessage());
         } catch (InvalidArgException e) {
-            System.out.println("Status: " + e.getMessage());
+            logger.debug(e.getMessage());
         }
     }
 

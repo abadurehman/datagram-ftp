@@ -25,6 +25,10 @@
             <artifactId>ftp-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -33,7 +37,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.nazmul.ftp.client.FTPClient</mainClass>
+                    <mainClass>com.nazmul.ftp.client.GUI</mainClass>
                 </configuration>
             </plugin>
         </plugins>

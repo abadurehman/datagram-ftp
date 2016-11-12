@@ -1,4 +1,6 @@
-package com.nazmul.ftp.client;
+package com.nazmul.ftp.client.console;
+
+import com.nazmul.ftp.client.ClientHelper;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -8,12 +10,12 @@ public class FTPClient {
 
 
     public static void main(String... args) {
-        InputStreamReader is = new InputStreamReader(System.in);
-        BufferedReader br = new BufferedReader(is);
 
         try {
 
             System.out.println("Enter host address: ");
+            InputStreamReader is = new InputStreamReader(System.in);
+            BufferedReader br = new BufferedReader(is);
             String hostName = br.readLine();
 
             if (hostName.isEmpty()) // if user did not enter a name
@@ -33,7 +35,7 @@ public class FTPClient {
                 opcode = "600";
             }
 
-            StringBuffer bufStr = new StringBuffer();
+            StringBuilder bufStr = new StringBuilder();
             bufStr.append("!");
             System.out.println("Enter username: ");
             String user = br.readLine();
@@ -50,15 +52,11 @@ public class FTPClient {
             if (password.isEmpty()) {
                 password = "demo";
             }
-            StringBuffer bufPas = new StringBuffer();
-            bufPas.append(password);
-            bufPas.append("!");
-            String pass = bufPas.toString();
+            String pass = password + "!";
 
             ClientHelper helper = new ClientHelper(hostName, portNum, opcode, username, pass);
             String auth = helper.authenticate(opcode, username, pass);
 
-            String echo = "";
             boolean done = false;
             while (!done) {
                 System.out.println(auth);
@@ -68,13 +66,13 @@ public class FTPClient {
                     done = true;
                     helper.done();
                 } else {
-                    echo = helper.sendRequest(message);
+                    String echo = helper.sendRequest(message);
                     System.out.println(echo);
                 }
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.out.println("Status: " + ex.getMessage());
         }
     }
 }

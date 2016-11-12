@@ -5,15 +5,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.apache.log4j.Logger;
 
 
 /**
  * FTP Client Application
  */
 public class GUI extends Application {
+    static final Logger logger = Logger.getLogger(GUI.class);
 
     public static void main(String... args) {
-        System.out.println("FTP Client");
+        logger.info("FTP Client ready");
         launch(args);
     }
 

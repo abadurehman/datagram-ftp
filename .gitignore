@@ -66,3 +66,5 @@ gen### Java template
 hs_err_pid*
 
 !.mvn/wrapper/maven-wrapper.jar
+
+*.log*
