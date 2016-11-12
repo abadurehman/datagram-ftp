@@ -145,6 +145,7 @@ public class Controller {
 
     private String validUsername(TextField usernameField) throws InvalidArgException {
         if (usernameField.getText().isEmpty()) {
+            usernameField.setText("!anonymous@");
             return "!anonymous@";
         }
 
