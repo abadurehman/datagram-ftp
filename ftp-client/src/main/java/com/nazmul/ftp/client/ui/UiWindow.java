@@ -54,7 +54,6 @@ public class UiWindow extends JFrame implements ActionListener {
     JPanel upload;
     JTextField remoteUploadFileNameInput;
     JFileChooser uploadChooser;
-    JProgressBar progressBar;
     /**
      * DOWNLOAD CONTAINER
      **/
@@ -117,12 +116,6 @@ public class UiWindow extends JFrame implements ActionListener {
         loginButton = new JButton("Connect");
         loginButton.setPreferredSize(new Dimension(150, 20));
 
-        progressBar = new JProgressBar(SwingConstants.HORIZONTAL, 0, 100);
-        progressBar.setVisible(false);
-        progressBar.setStringPainted(true);
-        progressBar.getSize().width += 60;
-        progressBar.getSize().height += 20;
-
         add(top, BorderLayout.PAGE_START);
 
         top.add(serverLabel);
@@ -133,7 +126,6 @@ public class UiWindow extends JFrame implements ActionListener {
         top.add(userInput);
         top.add(passwordLabel);
         top.add(passwordInput);
-        top.add(progressBar);
         top.add(loginButton);
         top.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 
