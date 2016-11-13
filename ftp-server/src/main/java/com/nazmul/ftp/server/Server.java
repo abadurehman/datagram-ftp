@@ -3,9 +3,11 @@ package com.nazmul.ftp.server;
 import com.nazmul.ftp.common.Data;
 import com.nazmul.ftp.common.DataSocket;
 import com.nazmul.ftp.common.exception.InvalidArgException;
-import com.nazmul.ftp.common.util.Utils;
-import com.nazmul.ftp.server.auth.User;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
+import com.nazmul.ftp.common.protocol.ResponseCode;
+import com.nazmul.ftp.common.util.CommonUtils;
+import com.nazmul.ftp.server.auth.User;
+import com.nazmul.ftp.server.session.WRQPacket;
 import com.nazmul.ftp.server.session.LoginPacket;
 import org.apache.log4j.Logger;
 
@@ -16,62 +18,68 @@ import java.net.SocketException;
 public class Server {
     static final Logger LOGGER = Logger.getLogger(Server.class);
     static LoginPacket loginPacket = new LoginPacket();
+    static WRQPacket writePacket = new WRQPacket();
+    static User loggedInUser = new User();
+    static int DEFAULT_SERVER_PORT = 3000;
 
     public static void run(String... args) {
-        int port = 3000;    // default port
-        if (args.length == 1) {
-            port = Integer.parseInt(args[0]);
-        }
+
         try {
-            DataSocket socket = new DataSocket(port);
+            DataSocket socket = new DataSocket(DEFAULT_SERVER_PORT);
             LOGGER.info("FTP server ready");
-
-            Data loginRequest = socket.receiveCredentials();
-            String loginReqMessage = loginRequest.getMessage();
-            short opcode = Utils.extractOpcode(loginReqMessage);
-
-
-            User loggedInUser = loginPacket.processAuthentication(opcode, loginReqMessage, loginRequest, socket);
 
             while (true) {
                 Data request = socket.receivePacketsWithSender();
                 String message = request.getMessage();
-                opcode = Utils.extractOpcode(message);
+                short opcode = CommonUtils.extractOpcode(message);
 
                 if (loggedInUser != null && loggedInUser.isAuthenticated()) {
-                    loggedInUser = requestByCode(opcode, message, request, socket, loggedInUser);
+                    loggedInUser = (User) requestByCode(opcode, message, request, socket);
 
                 } else if (loggedInUser != null && !loggedInUser.isAuthenticated()) {
                     loggedInUser = loginPacket.processAuthentication(opcode, message, request, socket);
                 }
             }
 
-
         } catch (BindException e) {
-            LOGGER.debug("Port is not available");
+            LOGGER.debug(e.getMessage());
         } catch (SocketException e) {
             LOGGER.debug(e.getMessage());
         } catch (IOException e) {
             LOGGER.debug(e.getMessage());
         } catch (InvalidArgException e) {
             LOGGER.debug(e.getMessage());
+        } catch (ClassNotFoundException e) {
+            LOGGER.debug(e.getMessage());
         }
     }
 
-    private static User requestByCode(short opcode,
-                                      String message,
-                                      Data request,
-                                      DataSocket socket,
-                                      User user) throws IOException {
-        switch(opcode) {
+    private static Object requestByCode(short opcode, String message, Data request, DataSocket socket)
+            throws IOException, ClassNotFoundException {
+
+        switch (opcode) {
+            case ProtocolCode.LOGIN:
+                return loginPacket.processAuthentication(ProtocolCode.LOGIN, message, request, socket);
+
             case ProtocolCode.LOGOUT:
                 return loginPacket.processAuthentication(ProtocolCode.LOGOUT, message, request, socket);
+
             case ProtocolCode.WRQ:
-                return null;
+                //write request command is received and response sent to client is okay
+                socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.COMMAND_OKAY));
+                //now write data on the server
+                writePacket.writeDataOnServer(request, socket, loggedInUser.getUsername());
+                return loggedInUser;
+
+            case ProtocolCode.DATA:
+                //download data request command is received and response sent to client is okay
+                socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.COMMAND_OKAY));
+                //now send data to the client
+                writePacket.writeDataOnClient(request, socket, loggedInUser.getUsername());
+                return loggedInUser;
+
             default:
-                return null;
+                return loggedInUser;
         }
     }
-
-
 }

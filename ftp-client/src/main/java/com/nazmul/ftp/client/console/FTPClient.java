@@ -66,7 +66,7 @@ public class FTPClient {
                     done = true;
                     helper.done();
                 } else {
-                    String echo = helper.sendRequest(message);
+                    String echo = helper.sendMessageRequest(message);
                     System.out.println(echo);
                 }
             }

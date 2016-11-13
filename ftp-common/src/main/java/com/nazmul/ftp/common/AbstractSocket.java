@@ -1,6 +1,10 @@
 package com.nazmul.ftp.common;
 
+import com.nazmul.ftp.common.io.FileEvent;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -25,7 +29,17 @@ public abstract class AbstractSocket extends DatagramSocket implements IDataSock
         send(datagram);
     }
 
-    public String receiveMessage()
+    public void sendPacket(FileEvent event, InetAddress host, int port) throws IOException {
+        //Send Packet
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ObjectOutputStream os = new ObjectOutputStream(outputStream);
+        os.writeObject(event);
+        byte[] data = outputStream.toByteArray();
+        DatagramPacket sendPacket = new DatagramPacket(data, data.length, host, port);
+        send(sendPacket);
+    }
+
+    public String receiveConfirmationMessage()
             throws IOException {
         byte[] receiveBuffer = new byte[MAX_LEN];
         DatagramPacket datagram = new DatagramPacket(receiveBuffer, MAX_LEN);

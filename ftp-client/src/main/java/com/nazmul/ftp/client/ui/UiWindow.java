@@ -1,34 +1,17 @@
 package com.nazmul.ftp.client.ui;
 
 import com.nazmul.ftp.client.ClientHelper;
+import com.nazmul.ftp.client.util.ClientUtils;
 import com.nazmul.ftp.common.exception.InvalidArgException;
+import com.nazmul.ftp.common.io.FileEvent;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
 import com.nazmul.ftp.common.protocol.ResponseCode;
-import com.nazmul.ftp.common.util.Utils;
+import com.nazmul.ftp.common.util.CommonUtils;
 import org.apache.log4j.Logger;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import javax.swing.text.DefaultCaret;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.ComponentOrientation;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -39,12 +22,16 @@ import java.net.UnknownHostException;
 
 public class UiWindow extends JFrame implements ActionListener {
 
-    private static final long serialVersionUID = 1525110630375067115L;
+    private static final long serialVersionUID = 1L;
 
     static final Logger LOGGER = Logger.getLogger(UiWindow.class);
     static final String LOGIN = String.valueOf(ProtocolCode.LOGIN);
     static final String LOGOUT = String.valueOf(ProtocolCode.LOGOUT);
+    static final String WRQ = String.valueOf(ProtocolCode.WRQ);
+    static final String DATA = String.valueOf(ProtocolCode.DATA);
     static final String DEFAULT_REMOTE_INPUT = "File name on the server";
+    static boolean loggedin;
+
     /**
      * TOP MENU
      **/
@@ -69,20 +56,20 @@ public class UiWindow extends JFrame implements ActionListener {
     JTextField remoteUploadFileNameInput;
     JFileChooser uploadChooser;
     JProgressBar progressBar;
-
     /**
      * DOWNLOAD CONTAINER
      **/
     JPanel download;
     JTextField remoteDownloadFileNameInput;
     JFileChooser downloadChooser;
-
     /**
      * RIGHT PANEL
      **/
     JTextArea logArea;
     JScrollPane scroll;
     DefaultCaret caret;
+    private ClientHelper helper;
+    private String responseCode;
 
     public UiWindow() {
         super("Datagram FTP");
@@ -152,12 +139,10 @@ public class UiWindow extends JFrame implements ActionListener {
         top.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 
         /** Main content definition **/
-
         center = new JPanel();
         center.setLayout(new GridLayout(1, 2));
 
         /** Setting sending components **/
-
         upload = new JPanel();
         upload.setLayout(new BorderLayout());
         upload.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Upload a file"));
@@ -205,11 +190,10 @@ public class UiWindow extends JFrame implements ActionListener {
         logArea = new JTextArea();
         logArea.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Logs"));
         logArea.setPreferredSize(new Dimension(getWidth(), 150));
-//        logArea.setEnabled(false);
 
-        scroll = new JScrollPane (logArea,
+        scroll = new JScrollPane(logArea,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        caret = (DefaultCaret)logArea.getCaret();
+        caret = (DefaultCaret) logArea.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         /** Adding all **/
@@ -234,110 +218,21 @@ public class UiWindow extends JFrame implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-
-        if(e.getSource() == loginButton) {
-            String responseCode = "";
-            boolean valid = true;
-
+        if (e.getSource() == loginButton) {
             if ("Connect".equals(loginButton.getText())) {
-                try {
-                    String host = validHostAddress(serverInput);
-                    String port = validServerPort(portInput);
-                    String username = validUsername(userInput);
-                    String password = validPassword(passwordInput);
+                login();
 
-                    ClientHelper helper = new ClientHelper(host, port);
-                    logArea.append("Status: Logging into " + host + "\n");
-                    responseCode = helper.authenticate(LOGIN, username, password);
-
-                } catch (SocketException socket) {
-                    logArea.append("Status: " + socket.getMessage() + "\n");
-                    valid = false;
-                } catch (UnknownHostException unknown) {
-                    logArea.append("Status: " + unknown.getMessage() + "\n");
-                    valid = false;
-                } catch (IOException io) {
-                    logArea.append("Status: " + io.getMessage() + "\n");
-                    valid = false;
-                } catch (InvalidArgException invalid) {
-                    logArea.append("Status: " + invalid.getMessage() + "\n");
-                    valid = false;
-                }
-
-                // If server request was successful
-                if (valid) {
-                    onResponseCode(Short.parseShort(responseCode.trim()));
-                }
-
-            } else {
-                try {
-                    String host = validHostAddress(serverInput);
-                    String port = validServerPort(portInput);
-                    String username = validUsername(userInput);
-                    String password = validPassword(passwordInput);
-
-                    ClientHelper client = new ClientHelper(host, port);
-                    logArea.append("Status: Logging out of " + host + "\n");
-                    responseCode = client.sendRequest(LOGOUT + username + password);
-
-                } catch (SocketException socket) {
-                    logArea.append("Status: " + socket.getMessage() + "\n");
-                    valid = false;
-                } catch (UnknownHostException unknown) {
-                    logArea.append("Status: " + unknown.getMessage() + "\n");
-                    valid = false;
-                } catch (IOException io) {
-                    logArea.append("Status: " + io.getMessage() + "\n");
-                    valid = false;
-                } catch (InvalidArgException invalid) {
-                    logArea.append("Status: " + invalid.getMessage() + "\n");
-                }
-
-                // If server request was successful
-                if (valid) {
-                    onResponseCode(Short.parseShort(responseCode.trim()));
-                }
+            } else if("Disconnect".equals(loginButton.getText())){
+                logOut();
             }
-        }
-    }
 
-    private String validServerPort(JTextField portField) throws InvalidArgException {
-        if(portField.getText().isEmpty()) {
-            throw new InvalidArgException("Server port cannot be empty");
-        }
-        return "3000";
-    }
+        } else if (e.getSource() == uploadChooser && loggedin) {
+            uploadFile();
 
-    private String validHostAddress(JTextField hostField) throws InvalidArgException {
-        if(hostField.getText().isEmpty()) {
-            throw new InvalidArgException("Server address cannot be empty");
-        }
-        return "localhost";
-    }
+        } else if (e.getSource() == downloadChooser && loggedin) {
+            downloadFile();
 
-    private String validPassword(JPasswordField passwordField) throws InvalidArgException {
-        if (passwordField.getText().isEmpty()) {
-            return "!";
         }
-
-        String password = passwordField.getText();
-        if (Utils.fieldEndsWith(password, '!')) {
-            return password;
-        }
-        throw new InvalidArgException("Password delimiter must be provided. It must end with '!'");
-    }
-
-    private String validUsername(JTextField usernameField) throws InvalidArgException {
-        if (usernameField.getText().isEmpty()) {
-            usernameField.setText("!anonymous@");
-            return "!anonymous@";
-        }
-
-        String username = usernameField.getText();
-        if (Utils.fieldStartsWith(username, '!') && Utils.fieldEndsWith(username, '@')) {
-            return username;
-        }
-        throw new InvalidArgException("Username delimiter is not provided. It must start with '!' and end with '@'");
     }
 
     private void onResponseCode(short code) {
@@ -367,8 +262,196 @@ public class UiWindow extends JFrame implements ActionListener {
             case ResponseCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED:
                 logArea.append("Status: " + code + " Syntax error in parameters or arguments\n");
                 break;
+            case ResponseCode.CLOSING_DATA_CONNECTION:
+                logArea.append("Status: " + code + " Closing data connection. Requested file action successful\n");
+                break;
+            case ResponseCode.COMMAND_OKAY:
+                logArea.append("Status: " + code + " The requested action has been successfully completed\n");
+                break;
+            case ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN:
+                logArea.append("Status: " + code + " File transfer was unsuccessful\n");
+                break;
             default:
                 LOGGER.info("Invalid response code");
+        }
+    }
+
+    private void login() {
+        try {
+            String host = ClientUtils.validHostAddress(serverInput);
+            String port = ClientUtils.validServerPort(portInput);
+            String username = ClientUtils.validUsername(userInput);
+            String password = ClientUtils.validPassword(passwordInput);
+
+            helper = new ClientHelper(host, port);
+            logArea.append("Status: Logging into " + host + "\n");
+            responseCode = helper.authenticate(LOGIN, username, password);
+
+        } catch (SocketException socket) {
+            logArea.append("Status: " + socket.getMessage() + "\n");
+        } catch (UnknownHostException unknown) {
+            logArea.append("Status: " + unknown.getMessage() + "\n");
+        } catch (IOException io) {
+            logArea.append("Status: " + io.getMessage() + "\n");
+        } catch (InvalidArgException invalid) {
+            logArea.append("Status: " + invalid.getMessage() + "\n");
+        } finally {
+            // successfully logged in
+            if (responseCode.trim().equals(String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED))) {
+                loggedin = true;
+                // If server request was successful
+                if (loggedin) {
+                    onResponseCode(Short.parseShort(responseCode.trim()));
+                }
+            }
+        }
+
+    }
+
+    private void logOut() {
+        try {
+            String host = ClientUtils.validHostAddress(serverInput);
+            String port = ClientUtils.validServerPort(portInput);
+            String username = ClientUtils.validUsername(userInput);
+            String password = ClientUtils.validPassword(passwordInput);
+
+            logArea.append("Status: Logging out of " + host + "\n");
+            responseCode = helper.sendMessageRequest(LOGOUT + username + password);
+
+        } catch (SocketException socket) {
+            logArea.append("Status: " + socket.getMessage() + "\n");
+        } catch (UnknownHostException unknown) {
+            logArea.append("Status: " + unknown.getMessage() + "\n");
+        } catch (IOException io) {
+            logArea.append("Status: " + io.getMessage() + "\n");
+        } catch (InvalidArgException invalid) {
+            logArea.append("Status: " + invalid.getMessage() + "\n");
+        } finally {
+            if(responseCode.trim().equals(String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED))) {
+                loggedin = false;
+                // If server request was successful
+                if (!loggedin) {
+                    onResponseCode(Short.parseShort(responseCode.trim()));
+                }
+            }
+        }
+    }
+
+    private void uploadFile() {
+
+        int uploadResult = uploadChooser.getDialogType();
+        boolean uploaded = true;
+
+        switch (uploadResult) {
+            case JFileChooser.APPROVE_OPTION:
+                try {
+                    String host = ClientUtils.validHostAddress(serverInput);
+                    String port = ClientUtils.validServerPort(portInput);
+                    String username = ClientUtils.validUsername(userInput);
+                    String password = ClientUtils.validPassword(passwordInput);
+
+                    // Send request to write data
+                    logArea.append("Status: Sending a request to write data\n");
+                    responseCode = helper.sendMessageRequest(WRQ + username + password);
+                    // if data write is allowed
+                    if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
+                        // send data
+                        String sourcePath = uploadChooser.getSelectedFile().getAbsolutePath();
+                        String destinationPath = downloadChooser.getCurrentDirectory().getAbsolutePath();
+                        FileEvent event = CommonUtils.getFileEvent(sourcePath, destinationPath);
+                        logArea.append("Status: File upload has started\n");
+                        responseCode = helper.uploadDataPacket(WRQ, username, password, event);
+                    }
+
+                } catch (InvalidArgException inval) {
+                    logArea.append("Status: " + inval.getMessage() + "\n");
+                    uploaded = false;
+                } catch (UnknownHostException unknown) {
+                    logArea.append("Status: " + unknown.getMessage() + "\n");
+                    uploaded = false;
+                } catch (SocketException socket) {
+                    logArea.append("Status: " + socket.getMessage() + "\n");
+                    uploaded = false;
+                } catch (IOException io) {
+                    logArea.append("Status: " + io.getMessage() + "\n");
+                    uploaded = false;
+                }
+
+                // if file was successfully uploaded
+                if (uploaded) {
+                    onResponseCode(Short.parseShort(responseCode.trim()));
+                }
+
+                break;
+            case JFileChooser.CANCEL_OPTION:
+                try {
+                    helper.done();
+                    logArea.append("Status: Uploading cancelled\n");
+                } catch (SocketException socket) {
+                    logArea.append("Status: " + socket.getMessage() + "\n");
+                }
+                break;
+            default:
+                logArea.append("Problem");
+        }
+
+    }
+
+    private void downloadFile() {
+        int downloadResult = downloadChooser.getDialogType();
+        boolean downloaded = true;
+
+        switch (downloadResult) {
+            case JFileChooser.APPROVE_OPTION:
+                try {
+                    String host = ClientUtils.validHostAddress(serverInput);
+                    String port = ClientUtils.validServerPort(portInput);
+                    String username = ClientUtils.validUsername(userInput);
+                    String password = ClientUtils.validPassword(passwordInput);
+
+                    // Send request to download data
+                    logArea.append("Status: Sending a request to download data\n");
+                    responseCode = helper.sendMessageRequest(DATA + username + password);
+                    // if data download is allowed
+                    if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
+                        // send data
+                        String sourcePath = downloadChooser.getSelectedFile().getAbsolutePath();
+                        String destinationPath = uploadChooser.getCurrentDirectory().getAbsolutePath();
+                        FileEvent event = CommonUtils.getFileEvent(sourcePath, destinationPath);
+                        logArea.append("Status: File download has started " + destinationPath + "\n");
+                        responseCode = helper.downloadDataPacket(DATA, username, password, event);
+                    }
+
+                } catch (InvalidArgException inval) {
+                    logArea.append("Status: " + inval.getMessage() + "\n");
+                    downloaded = false;
+                } catch (UnknownHostException unknown) {
+                    logArea.append("Status: " + unknown.getMessage() + "\n");
+                    downloaded = false;
+                } catch (SocketException socket) {
+                    logArea.append("Status: " + socket.getMessage() + "\n");
+                    downloaded = false;
+                } catch (IOException io) {
+                    logArea.append("Status: " + io.getMessage() + "\n");
+                    downloaded = false;
+                }
+
+                // if file was successfully uploaded
+                if (downloaded) {
+                    onResponseCode(Short.parseShort(responseCode.trim()));
+                }
+
+                break;
+            case JFileChooser.CANCEL_OPTION:
+                try {
+                    helper.done();
+                    logArea.append("Status: Downloading cancelled\n");
+                } catch (SocketException socket) {
+                    logArea.append("Status: " + socket.getMessage() + "\n");
+                }
+                break;
+            default:
+                logArea.append("Problem");
         }
     }
 

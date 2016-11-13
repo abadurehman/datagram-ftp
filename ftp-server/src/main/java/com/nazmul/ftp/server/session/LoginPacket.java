@@ -3,7 +3,7 @@ package com.nazmul.ftp.server.session;
 import com.nazmul.ftp.common.Data;
 import com.nazmul.ftp.common.DataSocket;
 import com.nazmul.ftp.common.exception.InvalidArgException;
-import com.nazmul.ftp.common.util.Utils;
+import com.nazmul.ftp.common.util.CommonUtils;
 import com.nazmul.ftp.server.auth.User;
 import com.nazmul.ftp.server.auth.service.UserServiceImpl;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
@@ -34,12 +34,12 @@ public class LoginPacket {
     }
 
 
-    public User processAuthentication(short opcode, String message, Data request, DataSocket mySocket)
+    public User processAuthentication(short opcode, String message, Data request, DataSocket dataSocket)
             throws IOException {
 
         User loggedInUser = new User();
-        String username = Utils.extractUsername(message);
-        String password = Utils.extractPassword(message);
+        String username = CommonUtils.extractUsername(message);
+        String password = CommonUtils.extractPassword(message);
 
         switch (opcode) {
 
@@ -47,11 +47,11 @@ public class LoginPacket {
                 LOGGER.info("Authentication request received");
                 try {
                     loggedInUser = validateUser(username, password);
-                    mySocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED));
+                    dataSocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED));
                     LOGGER.info("Authenticated");
 
                 } catch (InvalidArgException exc) {
-                    mySocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
+                    dataSocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
                     LOGGER.info("Authentication unsuccessful");
                 }
                 return loggedInUser;
@@ -60,18 +60,18 @@ public class LoginPacket {
                 LOGGER.info("Disconnect request received");
                 try {
                     loggedInUser = validateUser(username, password);
-                    mySocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED));
+                    dataSocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED));
                     loggedInUser.setAuthenticated(false);
                     LOGGER.info("User logged out");
 
                 } catch (InvalidArgException exc) {
-                    mySocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
+                    dataSocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
                     LOGGER.debug("Disconnect unsuccessful");
                 }
                 return loggedInUser;
 
             default:
-                mySocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED));
+                dataSocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED));
 
         }
         return null;

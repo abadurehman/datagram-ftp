@@ -11,7 +11,7 @@ public interface IDataSocket {
 
     void login(InetAddress host, int port, String opcode, String username, String password) throws IOException;
 
-    String receiveMessage() throws IOException;
+    String receiveConfirmationMessage() throws IOException;
 
     Data receivePacketsWithSender() throws IOException;
 

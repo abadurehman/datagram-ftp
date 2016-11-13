@@ -1,6 +1,7 @@
 package com.nazmul.ftp.client;
 
 import com.nazmul.ftp.common.DataSocket;
+import com.nazmul.ftp.common.io.FileEvent;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -27,13 +28,22 @@ public class ClientHelper {
 
     public String authenticate(String opcode, String user, String pass) throws IOException {
         mySocket.login(serverHost, serverPort, opcode, user, pass);
-        return mySocket.receiveMessage();
+        return mySocket.receiveConfirmationMessage();
     }
 
-    public String sendRequest(String message)
+    public String sendMessageRequest(String message)
             throws IOException {
         mySocket.sendMessage(serverHost, serverPort, message);
-        return mySocket.receiveMessage();
+        return mySocket.receiveConfirmationMessage();
+    }
+
+    public String uploadDataPacket(String opcode, String user, String pass, FileEvent event) throws IOException {
+        mySocket.sendPacket(event, serverHost, serverPort);
+        return mySocket.receiveConfirmationMessage();
+    }
+
+    public String downloadDataPacket(String opcode, String user, String pass, FileEvent event) throws IOException {
+        return uploadDataPacket(opcode, user, pass, event);
     }
 
     public void done() throws SocketException {
