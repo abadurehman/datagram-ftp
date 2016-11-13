@@ -22,14 +22,13 @@ import java.net.UnknownHostException;
 
 public class UiWindow extends JFrame implements ActionListener {
 
-    private static final long serialVersionUID = 1L;
-
     static final Logger LOGGER = Logger.getLogger(UiWindow.class);
     static final String LOGIN = String.valueOf(ProtocolCode.LOGIN);
     static final String LOGOUT = String.valueOf(ProtocolCode.LOGOUT);
     static final String WRQ = String.valueOf(ProtocolCode.WRQ);
     static final String DATA = String.valueOf(ProtocolCode.DATA);
     static final String DEFAULT_REMOTE_INPUT = "File name on the server";
+    private static final long serialVersionUID = 1L;
     static boolean loggedin;
 
     /**
@@ -154,7 +153,6 @@ public class UiWindow extends JFrame implements ActionListener {
         uploadChooser = new JFileChooser();
         uploadChooser.setDialogType(JFileChooser.OPEN_DIALOG);
         uploadChooser.setApproveButtonText("Upload");
-        uploadChooser.setEnabled(true);
 
         JPanel sendContent = new JPanel();
         sendContent.setLayout(new BorderLayout());
@@ -172,9 +170,8 @@ public class UiWindow extends JFrame implements ActionListener {
         remoteDownloadFileNameInput.addFocusListener(new DownloadFocusListener());
 
         downloadChooser = new JFileChooser();
-        downloadChooser.setDialogType(JFileChooser.DIRECTORIES_ONLY);
+        downloadChooser.setDialogType(JFileChooser.OPEN_DIALOG);
         downloadChooser.setApproveButtonText("Download");
-        downloadChooser.setEnabled(false);
 
         JPanel receiveContent = new JPanel();
         receiveContent.setLayout(new BorderLayout());
@@ -192,7 +189,7 @@ public class UiWindow extends JFrame implements ActionListener {
         logArea.setPreferredSize(new Dimension(getWidth(), 150));
 
         scroll = new JScrollPane(logArea,
-                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         caret = (DefaultCaret) logArea.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
@@ -222,7 +219,7 @@ public class UiWindow extends JFrame implements ActionListener {
             if ("Connect".equals(loginButton.getText())) {
                 login();
 
-            } else if("Disconnect".equals(loginButton.getText())){
+            } else if ("Disconnect".equals(loginButton.getText()) && loggedin) {
                 logOut();
             }
 
@@ -327,11 +324,17 @@ public class UiWindow extends JFrame implements ActionListener {
         } catch (InvalidArgException invalid) {
             logArea.append("Status: " + invalid.getMessage() + "\n");
         } finally {
-            if(responseCode.trim().equals(String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED))) {
+            if (responseCode.trim().equals(String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED))) {
                 loggedin = false;
                 // If server request was successful
                 if (!loggedin) {
                     onResponseCode(Short.parseShort(responseCode.trim()));
+                }
+
+                try {
+                    helper.done();
+                } catch (SocketException e) {
+                    logArea.append("Status: " + e.getMessage() + "\n");
                 }
             }
         }
@@ -340,7 +343,6 @@ public class UiWindow extends JFrame implements ActionListener {
     private void uploadFile() {
 
         int uploadResult = uploadChooser.getDialogType();
-        boolean uploaded = true;
 
         switch (uploadResult) {
             case JFileChooser.APPROVE_OPTION:
@@ -365,41 +367,34 @@ public class UiWindow extends JFrame implements ActionListener {
 
                 } catch (InvalidArgException inval) {
                     logArea.append("Status: " + inval.getMessage() + "\n");
-                    uploaded = false;
                 } catch (UnknownHostException unknown) {
                     logArea.append("Status: " + unknown.getMessage() + "\n");
-                    uploaded = false;
                 } catch (SocketException socket) {
                     logArea.append("Status: " + socket.getMessage() + "\n");
-                    uploaded = false;
                 } catch (IOException io) {
                     logArea.append("Status: " + io.getMessage() + "\n");
-                    uploaded = false;
+                } finally {
+                    // if file was successfully uploaded
+                    if (responseCode.trim().equals(String.valueOf(ResponseCode.CLOSING_DATA_CONNECTION))) {
+                        boolean uploaded = true;
+                        // If upload request was successful
+                        onResponseCode(Short.parseShort(responseCode.trim()));
+                    }
                 }
-
-                // if file was successfully uploaded
-                if (uploaded) {
-                    onResponseCode(Short.parseShort(responseCode.trim()));
-                }
-
                 break;
+
             case JFileChooser.CANCEL_OPTION:
-                try {
-                    helper.done();
-                    logArea.append("Status: Uploading cancelled\n");
-                } catch (SocketException socket) {
-                    logArea.append("Status: " + socket.getMessage() + "\n");
-                }
+                logArea.append("Status: Uploading cancelled\n");
                 break;
+
             default:
-                logArea.append("Problem");
+                logArea.append("Problem uploading a file\n");
         }
 
     }
 
     private void downloadFile() {
         int downloadResult = downloadChooser.getDialogType();
-        boolean downloaded = true;
 
         switch (downloadResult) {
             case JFileChooser.APPROVE_OPTION:
@@ -414,42 +409,34 @@ public class UiWindow extends JFrame implements ActionListener {
                     responseCode = helper.sendMessageRequest(DATA + username + password);
                     // if data download is allowed
                     if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
-                        // send data
+                        // send data source
                         String sourcePath = downloadChooser.getSelectedFile().getAbsolutePath();
                         String destinationPath = uploadChooser.getCurrentDirectory().getAbsolutePath();
                         FileEvent event = CommonUtils.getFileEvent(sourcePath, destinationPath);
-                        logArea.append("Status: File download has started " + destinationPath + "\n");
+                        logArea.append("Status: File download has started\n");
                         responseCode = helper.downloadDataPacket(DATA, username, password, event);
                     }
 
                 } catch (InvalidArgException inval) {
                     logArea.append("Status: " + inval.getMessage() + "\n");
-                    downloaded = false;
                 } catch (UnknownHostException unknown) {
                     logArea.append("Status: " + unknown.getMessage() + "\n");
-                    downloaded = false;
                 } catch (SocketException socket) {
                     logArea.append("Status: " + socket.getMessage() + "\n");
-                    downloaded = false;
                 } catch (IOException io) {
                     logArea.append("Status: " + io.getMessage() + "\n");
-                    downloaded = false;
+                } finally {
+                    // if file was successfully downloaded
+                    if (responseCode.trim().equals(String.valueOf(ResponseCode.CLOSING_DATA_CONNECTION))) {
+                        onResponseCode(Short.parseShort(responseCode.trim()));
+                    }
                 }
-
-                // if file was successfully uploaded
-                if (downloaded) {
-                    onResponseCode(Short.parseShort(responseCode.trim()));
-                }
-
                 break;
+
             case JFileChooser.CANCEL_OPTION:
-                try {
-                    helper.done();
-                    logArea.append("Status: Downloading cancelled\n");
-                } catch (SocketException socket) {
-                    logArea.append("Status: " + socket.getMessage() + "\n");
-                }
+                logArea.append("Status: Downloading cancelled\n");
                 break;
+
             default:
                 logArea.append("Problem");
         }
