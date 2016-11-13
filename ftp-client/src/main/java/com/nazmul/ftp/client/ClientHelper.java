@@ -17,28 +17,11 @@ public class ClientHelper {
     private final DataSocket mySocket;
     private final InetAddress serverHost;
     private final int serverPort;
-    private final short opcode;
-    private final String username;
-    private final String password;
-
 
     public ClientHelper(String hostName, String portNum)
             throws SocketException, UnknownHostException {
         serverHost = InetAddress.getByName(hostName);
         serverPort = Integer.parseInt(portNum);
-        username = "login";
-        password = "login";
-        opcode = 0;
-        mySocket = new DataSocket();
-    }
-
-    public ClientHelper(String host, String port, String opcode, String username, String password)
-            throws SocketException, UnknownHostException {
-        serverHost = InetAddress.getByName(host);
-        serverPort = Integer.parseInt(port);
-        this.opcode = Short.parseShort(opcode);
-        this.username = username;
-        this.password = password;
         mySocket = new DataSocket();
     }
 

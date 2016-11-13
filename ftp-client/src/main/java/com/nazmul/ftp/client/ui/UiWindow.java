@@ -21,6 +21,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+import javax.swing.text.DefaultCaret;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.ComponentOrientation;
@@ -62,17 +63,17 @@ public class UiWindow extends JFrame implements ActionListener {
      **/
     JPanel center;
     /**
-     * SEND CONTAINER
+     * UPLOAD CONTAINER
      **/
-    JPanel send;
+    JPanel upload;
     JTextField remoteUploadFileNameInput;
     JFileChooser uploadChooser;
     JProgressBar progressBar;
 
     /**
-     * RECEIVE CONTAINER
+     * DOWNLOAD CONTAINER
      **/
-    JPanel receive;
+    JPanel download;
     JTextField remoteDownloadFileNameInput;
     JFileChooser downloadChooser;
 
@@ -80,6 +81,8 @@ public class UiWindow extends JFrame implements ActionListener {
      * RIGHT PANEL
      **/
     JTextArea logArea;
+    JScrollPane scroll;
+    DefaultCaret caret;
 
     public UiWindow() {
         super("Datagram FTP");
@@ -155,9 +158,9 @@ public class UiWindow extends JFrame implements ActionListener {
 
         /** Setting sending components **/
 
-        send = new JPanel();
-        send.setLayout(new BorderLayout());
-        send.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Send a file"));
+        upload = new JPanel();
+        upload.setLayout(new BorderLayout());
+        upload.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Upload a file"));
         remoteUploadFileNameInput = new JTextField(DEFAULT_REMOTE_INPUT);
 
         //Simulate prompt
@@ -172,13 +175,12 @@ public class UiWindow extends JFrame implements ActionListener {
         sendContent.setLayout(new BorderLayout());
         sendContent.add(uploadChooser, BorderLayout.CENTER);
         sendContent.add(remoteUploadFileNameInput, BorderLayout.PAGE_START);
-        send.add(sendContent, BorderLayout.CENTER);
+        upload.add(sendContent, BorderLayout.CENTER);
 
         /** Setting reception components */
-
-        receive = new JPanel();
-        receive.setLayout(new BorderLayout());
-        receive.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Receive a file"));
+        download = new JPanel();
+        download.setLayout(new BorderLayout());
+        download.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Download a file"));
         remoteDownloadFileNameInput = new JTextField(DEFAULT_REMOTE_INPUT);
 
         //Simulate prompt
@@ -193,31 +195,35 @@ public class UiWindow extends JFrame implements ActionListener {
         receiveContent.setLayout(new BorderLayout());
         receiveContent.add(downloadChooser, BorderLayout.CENTER);
         receiveContent.add(remoteDownloadFileNameInput, BorderLayout.PAGE_START);
-        receive.add(receiveContent, BorderLayout.CENTER);
+        download.add(receiveContent, BorderLayout.CENTER);
 
         /** Adding to the center container **/
-        center.add(send);
-        center.add(receive);
+        center.add(upload);
+        center.add(download);
 
         /** Adding logging area **/
-
-        logArea = new JTextArea("Flow of events :" + System.getProperty("line.separator"));
-        logArea.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+        logArea = new JTextArea();
+        logArea.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Logs"));
         logArea.setPreferredSize(new Dimension(getWidth(), 150));
+//        logArea.setEnabled(false);
 
+        scroll = new JScrollPane (logArea,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        caret = (DefaultCaret)logArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         /** Adding all **/
-
         add(center, BorderLayout.CENTER);
-        add(new JScrollPane(logArea), BorderLayout.PAGE_END);
+        add(scroll, BorderLayout.PAGE_END);
     }
 
     private void configureWindow() {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-
-        setSize((int) (screen.width * 0.5), (int) (screen.height * 0.7));
+        Double width = screen.width * 0.5;
+        Double height = screen.height * 0.7;
+        setSize(width.intValue(), height.intValue());
         setLocation((screen.width - getWidth()) / 2, (screen.height - getHeight()) / 2);
 
         setLayout(new BorderLayout());
@@ -356,7 +362,7 @@ public class UiWindow extends JFrame implements ActionListener {
                 logArea.append("Status: " + code + " Invalid username or password\n");
                 break;
             case ResponseCode.USERNAME_OK_NEED_PASSWORD:
-                logArea.append("Status " + code + " Username ok, need password\n");
+                logArea.append("Status: " + code + " Username ok, need password\n");
                 break;
             case ResponseCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED:
                 logArea.append("Status: " + code + " Syntax error in parameters or arguments\n");

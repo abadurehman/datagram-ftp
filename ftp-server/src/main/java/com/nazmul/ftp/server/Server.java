@@ -14,7 +14,7 @@ import java.net.BindException;
 import java.net.SocketException;
 
 public class Server {
-    static final Logger logger = Logger.getLogger(Server.class);
+    static final Logger LOGGER = Logger.getLogger(Server.class);
 
     public static void run(String... args) {
         int port = 3000;    // default port
@@ -23,7 +23,7 @@ public class Server {
         }
         try {
             DataSocket socket = new DataSocket(port);
-            logger.info("FTP server ready");
+            LOGGER.info("FTP server ready");
 
             Data loginRequest = socket.receiveCredentials();
             String loginReqMessage = loginRequest.getMessage();
@@ -33,7 +33,7 @@ public class Server {
             User loggedInUser = packet.processAuthentication(opcode, loginReqMessage, loginRequest, socket);
 
             while (true) {
-                Data request = socket.receiveMessageAndSender();
+                Data request = socket.receivePacketWithSender();
                 String message = request.getMessage();
                 opcode = Utils.extractOpcode(message);
 
@@ -47,13 +47,13 @@ public class Server {
 
 
         } catch (BindException e) {
-            logger.debug("Port is not available");
+            LOGGER.debug("Port is not available");
         } catch (SocketException e) {
-            logger.debug(e.getMessage());
+            LOGGER.debug(e.getMessage());
         } catch (IOException e) {
-            logger.debug(e.getMessage());
+            LOGGER.debug(e.getMessage());
         } catch (InvalidArgException e) {
-            logger.debug(e.getMessage());
+            LOGGER.debug(e.getMessage());
         }
     }
 
@@ -66,6 +66,8 @@ public class Server {
         switch(opcode) {
             case ProtocolCode.LOGOUT:
                 return packet.processAuthentication(ProtocolCode.LOGOUT, message, request, socket);
+            case ProtocolCode.WRQ:
+                return null;
             default:
                 return null;
         }

@@ -54,7 +54,7 @@ public class FTPClient {
             }
             String pass = password + "!";
 
-            ClientHelper helper = new ClientHelper(hostName, portNum, opcode, username, pass);
+            ClientHelper helper = new ClientHelper(hostName, portNum);
             String auth = helper.authenticate(opcode, username, pass);
 
             boolean done = false;

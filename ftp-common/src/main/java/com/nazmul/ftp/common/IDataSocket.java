@@ -13,6 +13,6 @@ public interface IDataSocket {
 
     String receiveMessage() throws IOException;
 
-    Data receiveMessageAndSender() throws IOException;
+    Data receivePacketWithSender() throws IOException;
 
 }

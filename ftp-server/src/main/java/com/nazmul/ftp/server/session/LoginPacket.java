@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class LoginPacket {
 
-    static final Logger logger = Logger.getLogger(LoginPacket.class);
+    static final Logger LOGGER = Logger.getLogger(LoginPacket.class);
     private final UserServiceImpl userService = new UserServiceImpl();
     private boolean authenticated;
 
@@ -30,7 +30,7 @@ public class LoginPacket {
             return checkUser;
         }
 
-        throw new InvalidArgException(String.valueOf(ResponseCode.INVALID_USERNAME_OR_PASSWORD));
+        throw new InvalidArgException(String.valueOf(ResponseCode.USERNAME_OK_NEED_PASSWORD));
     }
 
 
@@ -44,29 +44,29 @@ public class LoginPacket {
         switch (opcode) {
 
             case ProtocolCode.LOGIN:
-                logger.info("Authentication request received");
+                LOGGER.info("Authentication request received");
                 try {
                     loggedInUser = validateUser(username, password);
                     mySocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED));
-                    logger.info("Authenticated");
+                    LOGGER.info("Authenticated");
 
                 } catch (InvalidArgException exc) {
                     mySocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
-                    logger.info("Authentication unsuccessful");
+                    LOGGER.info("Authentication unsuccessful");
                 }
                 return loggedInUser;
 
             case ProtocolCode.LOGOUT:
-                logger.info("Disconnect request received");
+                LOGGER.info("Disconnect request received");
                 try {
                     loggedInUser = validateUser(username, password);
                     mySocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED));
                     loggedInUser.setAuthenticated(false);
-                    logger.info("User logged out");
+                    LOGGER.info("User logged out");
 
                 } catch (InvalidArgException exc) {
                     mySocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
-                    logger.debug("Disconnect unsuccessful");
+                    LOGGER.debug("Disconnect unsuccessful");
                 }
                 return loggedInUser;
 

@@ -28,11 +28,9 @@ public abstract class AbstractSocket extends DatagramSocket implements IDataSock
     public String receiveMessage()
             throws IOException {
         byte[] receiveBuffer = new byte[MAX_LEN];
-        DatagramPacket datagram =
-                new DatagramPacket(receiveBuffer, MAX_LEN);
+        DatagramPacket datagram = new DatagramPacket(receiveBuffer, MAX_LEN);
         receive(datagram);
-        String message = new String(receiveBuffer);
-        return message;
+        return new String(receiveBuffer);
     }
 
     public void login(InetAddress host,
