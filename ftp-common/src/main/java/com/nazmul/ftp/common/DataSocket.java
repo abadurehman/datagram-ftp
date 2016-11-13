@@ -13,7 +13,7 @@ public class DataSocket extends AbstractSocket {
         super(portNo);
     }
 
-    public Data receivePacketWithSender() throws IOException {
+    public Data receivePacketsWithSender() throws IOException {
         byte[] receiveBuffer = new byte[MAX_LEN];
         DatagramPacket datagram = new DatagramPacket(receiveBuffer, MAX_LEN);
         receive(datagram);
@@ -23,7 +23,7 @@ public class DataSocket extends AbstractSocket {
     }
 
     public Data receiveCredentials() throws IOException {
-        return receivePacketWithSender();
+        return receivePacketsWithSender();
     }
 
 

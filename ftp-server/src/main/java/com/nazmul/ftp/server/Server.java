@@ -15,6 +15,7 @@ import java.net.SocketException;
 
 public class Server {
     static final Logger LOGGER = Logger.getLogger(Server.class);
+    static LoginPacket loginPacket = new LoginPacket();
 
     public static void run(String... args) {
         int port = 3000;    // default port
@@ -29,19 +30,19 @@ public class Server {
             String loginReqMessage = loginRequest.getMessage();
             short opcode = Utils.extractOpcode(loginReqMessage);
 
-            LoginPacket packet = new LoginPacket();
-            User loggedInUser = packet.processAuthentication(opcode, loginReqMessage, loginRequest, socket);
+
+            User loggedInUser = loginPacket.processAuthentication(opcode, loginReqMessage, loginRequest, socket);
 
             while (true) {
-                Data request = socket.receivePacketWithSender();
+                Data request = socket.receivePacketsWithSender();
                 String message = request.getMessage();
                 opcode = Utils.extractOpcode(message);
 
                 if (loggedInUser != null && loggedInUser.isAuthenticated()) {
-                    loggedInUser = requestByCode(opcode, message, request, packet, socket, loggedInUser);
+                    loggedInUser = requestByCode(opcode, message, request, socket, loggedInUser);
 
                 } else if (loggedInUser != null && !loggedInUser.isAuthenticated()) {
-                    loggedInUser = packet.processAuthentication(opcode, message, request, socket);
+                    loggedInUser = loginPacket.processAuthentication(opcode, message, request, socket);
                 }
             }
 
@@ -60,12 +61,11 @@ public class Server {
     private static User requestByCode(short opcode,
                                       String message,
                                       Data request,
-                                      LoginPacket packet,
                                       DataSocket socket,
                                       User user) throws IOException {
         switch(opcode) {
             case ProtocolCode.LOGOUT:
-                return packet.processAuthentication(ProtocolCode.LOGOUT, message, request, socket);
+                return loginPacket.processAuthentication(ProtocolCode.LOGOUT, message, request, socket);
             case ProtocolCode.WRQ:
                 return null;
             default:
