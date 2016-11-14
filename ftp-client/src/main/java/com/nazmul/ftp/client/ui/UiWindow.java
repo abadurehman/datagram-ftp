@@ -205,6 +205,7 @@ public class UiWindow extends JFrame implements ActionListener {
         Double width = screen.width * 0.5;
         Double height = screen.height * 0.7;
         setSize(width.intValue(), height.intValue());
+        setMinimumSize(new Dimension(850, 600));
         setLocation((screen.width - getWidth()) / 2, (screen.height - getHeight()) / 2);
 
         setLayout(new BorderLayout());
