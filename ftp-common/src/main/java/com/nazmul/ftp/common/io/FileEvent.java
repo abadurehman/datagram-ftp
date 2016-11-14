@@ -4,63 +4,81 @@ import java.io.Serializable;
 
 public class FileEvent implements Serializable {
 
-    public FileEvent() {
-    }
+  private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = 1L;
+  private String destinationDirectory;
 
-    private String destinationDirectory;
-    private String sourceDirectory;
-    private String filename;
-    private long fileSize;
-    private byte[] fileData;
-    private String status;
+  private String sourceDirectory;
 
-    public String getDestinationDirectory() {
-        return destinationDirectory;
-    }
+  private String filename;
 
-    public void setDestinationDirectory(String destinationDirectory) {
-        this.destinationDirectory = destinationDirectory;
-    }
+  private long fileSize;
 
-    public String getSourceDirectory() {
-        return sourceDirectory;
-    }
+  private byte[] fileData;
 
-    public void setSourceDirectory(String sourceDirectory) {
-        this.sourceDirectory = sourceDirectory;
-    }
+  private String status;
 
-    public String getFilename() {
-        return filename;
-    }
+  public FileEvent() {
 
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
+  }
 
-    public long getFileSize() {
-        return fileSize;
-    }
+  public String getDestinationDirectory() {
 
-    public void setFileSize(long fileSize) {
-        this.fileSize = fileSize;
-    }
+    return destinationDirectory;
+  }
 
-    public String getStatus() {
-        return status;
-    }
+  public void setDestinationDirectory(String destinationDirectory) {
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    this.destinationDirectory = destinationDirectory;
+  }
 
-    public byte[] getFileData() {
-        return fileData;
-    }
+  public String getSourceDirectory() {
 
-    public void setFileData(byte[] fileData) {
-        this.fileData = fileData;
-    }
+    return sourceDirectory;
+  }
+
+  public void setSourceDirectory(String sourceDirectory) {
+
+    this.sourceDirectory = sourceDirectory;
+  }
+
+  public String getFilename() {
+
+    return filename;
+  }
+
+  public void setFilename(String filename) {
+
+    this.filename = filename;
+  }
+
+  public long getFileSize() {
+
+    return fileSize;
+  }
+
+  public void setFileSize(long fileSize) {
+
+    this.fileSize = fileSize;
+  }
+
+  public String getStatus() {
+
+    return status;
+  }
+
+  public void setStatus(String status) {
+
+    this.status = status;
+  }
+
+  public byte[] getFileData() {
+
+    return fileData;
+  }
+
+  public void setFileData(byte[] fileData) {
+
+    this.fileData = fileData;
+  }
 }

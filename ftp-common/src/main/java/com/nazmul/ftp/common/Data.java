@@ -4,59 +4,72 @@ import java.net.InetAddress;
 
 public class Data {
 
-    private InetAddress host;
-    private int port;
-    private String message;
+  private InetAddress host;
 
-    public Data() {
-    }
+  private int port;
 
-    public Data(String message) {
-        this.message = message;
-    }
+  private String message;
 
-    public Data(String message, InetAddress host, int port) {
-        this.message = message;
-        this.host = host;
-        this.port = port;
-    }
+  public Data() {
 
-    public void putVal(String message, InetAddress host, int port) {
-        this.message = message;
-        this.host = host;
-        this.port = port;
-    }
+  }
 
-    public void putCredentials(InetAddress host,
-                               int port,
-                               String message) {
-        this.host = host;
-        this.port = port;
-        this.message = message;
-    }
+  public Data(String message) {
 
-    public String getMessage() {
-        return message;
-    }
+    this.message = message;
+  }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+  public Data(String message, InetAddress host, int port) {
 
-    public InetAddress getHost() {
-        return host;
-    }
+    this.message = message;
+    this.host = host;
+    this.port = port;
+  }
 
-    public void setHost(InetAddress host) {
-        this.host = host;
-    }
+  public void putVal(String message, InetAddress host, int port) {
 
-    public int getPort() {
-        return port;
-    }
+    this.message = message;
+    this.host = host;
+    this.port = port;
+  }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
+  public void putCredentials(InetAddress host,
+                             int port,
+                             String message) {
+
+    this.host = host;
+    this.port = port;
+    this.message = message;
+  }
+
+  public String getMessage() {
+
+    return message;
+  }
+
+  public void setMessage(String message) {
+
+    this.message = message;
+  }
+
+  public InetAddress getHost() {
+
+    return host;
+  }
+
+  public void setHost(InetAddress host) {
+
+    this.host = host;
+  }
+
+  public int getPort() {
+
+    return port;
+  }
+
+  public void setPort(int port) {
+
+    this.port = port;
+  }
 
 }

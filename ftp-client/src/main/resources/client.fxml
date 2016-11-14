@@ -11,10 +11,14 @@
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.FlowPane?>
-
-<FlowPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="576.0" minWidth="720.0" prefHeight="576.0" prefWidth="720.0" rowValignment="TOP" xmlns="http://javafx.com/javafx/8.0.112-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.nazmul.ftp.client.fx.Controller">
+<FlowPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+          minHeight="576.0" minWidth="720.0" prefHeight="576.0" prefWidth="720.0"
+          rowValignment="TOP" xmlns="http://javafx.com/javafx/8.0.112-ea"
+          fx:controller="com.nazmul.ftp.client.fx.Controller">
     <children>
-        <SplitPane dividerPositions="0.3328981723237598" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="576.0" minWidth="720.0" orientation="VERTICAL" prefHeight="576.0" prefWidth="720.0">
+        <SplitPane dividerPositions="0.3328981723237598" maxHeight="1.7976931348623157E308"
+                   maxWidth="1.7976931348623157E308" minHeight="576.0" minWidth="720.0"
+                   orientation="VERTICAL" prefHeight="576.0" prefWidth="720.0">
             <items>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="236.0" prefWidth="718.0">
                     <children>
@@ -22,33 +26,47 @@
                             <menus>
                                 <Menu mnemonicParsing="false" text="Server">
                                     <items>
-                                        <MenuItem fx:id="menuItemStartServer"  text="Start server" />
+                                        <MenuItem fx:id="menuItemStartServer" text="Start server"/>
                                     </items>
                                 </Menu>
                                 <Menu mnemonicParsing="false" text="Help">
                                     <items>
-                                        <MenuItem mnemonicParsing="false" text="About" />
+                                        <MenuItem mnemonicParsing="false" text="About"/>
                                     </items>
                                 </Menu>
                             </menus>
                         </MenuBar>
                         <ToolBar layoutY="29.0" prefHeight="40.0" prefWidth="720.0">
                             <items>
-                                <TextField fx:id="hostField" prefHeight="26.0" prefWidth="196.0" promptText="host" text="localhost" />
-                                <TextField fx:id="usernameField" prefHeight="26.0" prefWidth="141.0" promptText="username" text="!demo@" />
-                                <PasswordField fx:id="passwordField" prefHeight="26.0" prefWidth="128.0" promptText="password" text="demo!" />
-                                <TextField fx:id="portField" prefHeight="26.0" prefWidth="86.0" promptText="port" text="3000" />
-                                <Button fx:id="connectButton" mnemonicParsing="false" onAction="#login" prefHeight="26.0" prefWidth="137.0" text="Connect" />
+                                <TextField fx:id="hostField" prefHeight="26.0" prefWidth="196.0"
+                                           promptText="host" text="localhost"/>
+                                <TextField fx:id="usernameField" prefHeight="26.0" prefWidth="141.0"
+                                           promptText="username" text="!demo@"/>
+                                <PasswordField fx:id="passwordField" prefHeight="26.0"
+                                               prefWidth="128.0" promptText="password"
+                                               text="demo!"/>
+                                <TextField fx:id="portField" prefHeight="26.0" prefWidth="86.0"
+                                           promptText="port" text="3000"/>
+                                <Button fx:id="connectButton" mnemonicParsing="false"
+                                        onAction="#login" prefHeight="26.0" prefWidth="137.0"
+                                        text="Connect"/>
                             </items>
                         </ToolBar>
-                        <TextArea fx:id="logTextarea" editable="false" layoutX="-2.0" layoutY="69.0" prefHeight="119.0" prefWidth="720.0" wrapText="true" />
+                        <TextArea fx:id="logTextarea" editable="false" layoutX="-2.0" layoutY="69.0"
+                                  prefHeight="119.0" prefWidth="720.0" wrapText="true"/>
                     </children>
                 </AnchorPane>
-                <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="402.0" prefWidth="718.0">
-               <children>
-                  <Button fx:id="uploadButton" disable="true" layoutX="14.0" layoutY="100.0" mnemonicParsing="false" prefHeight="75.0" prefWidth="167.0" text="Upload" />
-                  <Button fx:id="downloadButton" disable="true" layoutX="537.0" layoutY="100.0" mnemonicParsing="false" prefHeight="75.0" prefWidth="167.0" text="Download" />
-               </children></AnchorPane>
+                <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                            minHeight="0.0" minWidth="0.0" prefHeight="402.0" prefWidth="718.0">
+                    <children>
+                        <Button fx:id="uploadButton" disable="true" layoutX="14.0" layoutY="100.0"
+                                mnemonicParsing="false" prefHeight="75.0" prefWidth="167.0"
+                                text="Upload"/>
+                        <Button fx:id="downloadButton" disable="true" layoutX="537.0"
+                                layoutY="100.0" mnemonicParsing="false" prefHeight="75.0"
+                                prefWidth="167.0" text="Download"/>
+                    </children>
+                </AnchorPane>
             </items>
         </SplitPane>
     </children>

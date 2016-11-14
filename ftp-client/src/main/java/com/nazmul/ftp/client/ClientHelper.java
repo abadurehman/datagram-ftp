@@ -9,38 +9,47 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class ClientHelper {
-    private final DataSocket mySocket;
-    private final InetAddress serverHost;
-    private final int serverPort;
 
-    public ClientHelper(String hostName, String portNum)
-            throws SocketException, UnknownHostException {
-        serverHost = InetAddress.getByName(hostName);
-        serverPort = Integer.parseInt(portNum);
-        mySocket = new DataSocket();
-    }
+  private final DataSocket mySocket;
 
-    public String authenticate(String opcode, String user, String pass) throws IOException {
-        mySocket.login(serverHost, serverPort, opcode, user, pass);
-        return mySocket.receiveConfirmationMessage();
-    }
+  private final InetAddress serverHost;
 
-    public String sendMessageRequest(String message)
-            throws IOException {
-        mySocket.sendMessage(serverHost, serverPort, message);
-        return mySocket.receiveConfirmationMessage();
-    }
+  private final int serverPort;
 
-    public String uploadDataPacket(String opcode, String user, String pass, FileEvent event) throws IOException {
-        mySocket.sendPacket(event, serverHost, serverPort);
-        return mySocket.receiveConfirmationMessage();
-    }
+  public ClientHelper(String hostName, String portNum)
+          throws SocketException, UnknownHostException {
 
-    public String downloadDataPacket(String opcode, String user, String pass, FileEvent event) throws IOException {
-        return uploadDataPacket(opcode, user, pass, event);
-    }
+    serverHost = InetAddress.getByName(hostName);
+    serverPort = Integer.parseInt(portNum);
+    mySocket = new DataSocket();
+  }
 
-    public void done() throws SocketException {
-        mySocket.close();
-    }
+  public String authenticate(String opcode, String user, String pass) throws IOException {
+
+    mySocket.login(serverHost, serverPort, opcode, user, pass);
+    return mySocket.receiveConfirmationMessage();
+  }
+
+  public String sendMessageRequest(String message)
+          throws IOException {
+
+    mySocket.sendMessage(serverHost, serverPort, message);
+    return mySocket.receiveConfirmationMessage();
+  }
+
+  public String uploadDataPacket(String opcode, String user, String pass, FileEvent event) throws IOException {
+
+    mySocket.sendPacket(event, serverHost, serverPort);
+    return mySocket.receiveConfirmationMessage();
+  }
+
+  public String downloadDataPacket(String opcode, String user, String pass, FileEvent event) throws IOException {
+
+    return uploadDataPacket(opcode, user, pass, event);
+  }
+
+  public void done() throws SocketException {
+
+    mySocket.close();
+  }
 }
