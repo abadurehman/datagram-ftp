@@ -21,7 +21,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 
 public class UiWindow extends JFrame implements ActionListener {
 
@@ -181,10 +180,14 @@ public class UiWindow extends JFrame implements ActionListener {
         /** Adding logging area **/
         logArea = new JTextArea();
         logArea.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Logs"));
-        logArea.setPreferredSize(new Dimension(getWidth(), 150));
+        logArea.setEnabled(false);
+        logArea.setDisabledTextColor(Color.GREEN);
+        logArea.setToolTipText("System logs");
 
         scroll = new JScrollPane(logArea,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setPreferredSize(new Dimension(getWidth(), 150));
+
         caret = (DefaultCaret) logArea.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
@@ -219,13 +222,14 @@ public class UiWindow extends JFrame implements ActionListener {
                 login();
 
             } else if ("Disconnect".equals(loginButton.getText()) && loggedin) {
-                LOGGER.info("Disconnect request sent");
+                LOGGER.info("Logout request sent");
                 logOut();
             }
 
         } else if (e.getSource() == uploadChooser && loggedin) {
             try {
                 uploadFile();
+
             } catch (InvalidArgException inval) {
                 LOGGER.warn(inval.getMessage());
                 logArea.append("Status: " + inval.getMessage() + "\n");
@@ -343,43 +347,11 @@ public class UiWindow extends JFrame implements ActionListener {
 
         switch (uploadResult) {
             case JFileChooser.APPROVE_OPTION:
-                try {
-                    String host = ClientUtils.validHostAddress(serverInput);
-                    String port = ClientUtils.validServerPort(portInput);
-                    String username = ClientUtils.validUsername(userInput);
-                    String password = ClientUtils.validPassword(passwordInput);
-
-                    // Send request to write data
-                    logArea.append("Status: Sending a request to write data\n");
-                    responseCode = helper.sendMessageRequest(WRQ + username + password);
-                    // if data write is allowed
-                    if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
-                        // send data
-                        String sourcePath = uploadChooser.getSelectedFile().getAbsolutePath();
-                        String destinationPath = downloadChooser.getCurrentDirectory().getAbsolutePath();
-                        FileEvent event = CommonUtils.getFileEvent(sourcePath, destinationPath);
-                        logArea.append("Status: File upload has started\n");
-                        responseCode = helper.uploadDataPacket(WRQ, username, password, event);
-                    }
-
-                } catch (InvalidArgException | IOException inval) {
-                    logArea.append("Status: " + inval.getMessage() + "\n");
-                } finally {
-                    // if file was successfully uploaded
-                    if (responseCode.trim().equals(String.valueOf(ResponseCode.CLOSING_DATA_CONNECTION))) {
-                        boolean uploaded = true;
-                        // If upload request was successful
-                        onResponseCode(Short.parseShort(responseCode.trim()));
-                    } else {
-                        onResponseCode(Short.parseShort(responseCode.trim()));
-                    }
-                }
+                sendFileToTheServer();
                 break;
-
             case JFileChooser.CANCEL_OPTION:
                 logArea.append("Status: Uploading cancelled\n");
                 break;
-
             default:
                 logArea.append("Problem uploading a file\n");
         }
@@ -391,57 +363,89 @@ public class UiWindow extends JFrame implements ActionListener {
 
         switch (downloadResult) {
             case JFileChooser.APPROVE_OPTION:
-                try {
-                    String host = ClientUtils.validHostAddress(serverInput);
-                    String port = ClientUtils.validServerPort(portInput);
-                    String username = ClientUtils.validUsername(userInput);
-                    String password = ClientUtils.validPassword(passwordInput);
-
-                    // Send request to download data
-                    logArea.append("Status: Sending a request to download data\n");
-                    responseCode = helper.sendMessageRequest(DATA + username + password);
-                    // if data download is allowed
-                    if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
-                        // send data source
-                        String sourcePath = downloadChooser.getSelectedFile().getAbsolutePath();
-                        String destinationPath = uploadChooser.getCurrentDirectory().getAbsolutePath();
-                        FileEvent event = CommonUtils.getFileEvent(sourcePath, destinationPath);
-                        logArea.append("Status: File download has started\n");
-                        responseCode = helper.downloadDataPacket(DATA, username, password, event);
-                    }
-
-                } catch (InvalidArgException inval) {
-                    logArea.append("Status: " + inval.getMessage() + "\n");
-                } catch (UnknownHostException unknown) {
-                    logArea.append("Status: " + unknown.getMessage() + "\n");
-                } catch (SocketException socket) {
-                    logArea.append("Status: " + socket.getMessage() + "\n");
-                } catch (IOException io) {
-                    logArea.append("Status: " + io.getMessage() + "\n");
-                } finally {
-                    // if file was successfully downloaded
-                    if (responseCode.trim().equals(String.valueOf(ResponseCode.CLOSING_DATA_CONNECTION))) {
-                        onResponseCode(Short.parseShort(responseCode.trim()));
-                    }
-                }
+                downloadFileFromTheServer();
                 break;
-
             case JFileChooser.CANCEL_OPTION:
                 logArea.append("Status: Downloading cancelled\n");
                 break;
-
             default:
                 logArea.append("Problem");
         }
     }
 
+    private void sendFileToTheServer() {
+        try {
+            String host = ClientUtils.validHostAddress(serverInput);
+            String port = ClientUtils.validServerPort(portInput);
+            String username = ClientUtils.validUsername(userInput);
+            String password = ClientUtils.validPassword(passwordInput);
+
+            // Send request to write data
+            logArea.append("Status: Sending a request to write data\n");
+            responseCode = helper.sendMessageRequest(WRQ + username + password);
+            // if data write is allowed
+            if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
+                // send data
+                String sourcePath = uploadChooser.getSelectedFile().getAbsolutePath();
+                String destinationPath = downloadChooser.getCurrentDirectory().getAbsolutePath();
+                FileEvent event = CommonUtils.getFileEvent(sourcePath, destinationPath);
+                logArea.append("Status: File upload has started\n");
+                responseCode = helper.uploadDataPacket(WRQ, username, password, event);
+            }
+
+        } catch (InvalidArgException | IOException inval) {
+            logArea.append("Status: " + inval.getMessage() + "\n");
+        } finally {
+            // if file was successfully uploaded
+            if (responseCode.trim().equals(String.valueOf(ResponseCode.CLOSING_DATA_CONNECTION))) {
+                boolean uploaded = true;
+                // If upload request was successful
+                onResponseCode(Short.parseShort(responseCode.trim()));
+            } else {
+                onResponseCode(Short.parseShort(responseCode.trim()));
+            }
+        }
+    }
+
+    private void downloadFileFromTheServer() {
+        try {
+            String host = ClientUtils.validHostAddress(serverInput);
+            String port = ClientUtils.validServerPort(portInput);
+            String username = ClientUtils.validUsername(userInput);
+            String password = ClientUtils.validPassword(passwordInput);
+
+            // Send request to download data
+            logArea.append("Status: Sending a request to download data\n");
+            responseCode = helper.sendMessageRequest(DATA + username + password);
+            // if data download is allowed
+            if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
+                // send data source
+                String sourcePath = downloadChooser.getSelectedFile().getAbsolutePath();
+                String destinationPath = uploadChooser.getCurrentDirectory().getAbsolutePath();
+                FileEvent event = CommonUtils.getFileEvent(sourcePath, destinationPath);
+                logArea.append("Status: File download has started\n");
+                responseCode = helper.downloadDataPacket(DATA, username, password, event);
+            }
+
+        } catch (InvalidArgException | IOException inval) {
+            logArea.append("Status: " + inval.getMessage() + "\n");
+        } finally {
+            // if file was successfully downloaded
+            if (responseCode.trim().equals(String.valueOf(ResponseCode.CLOSING_DATA_CONNECTION))) {
+                onResponseCode(Short.parseShort(responseCode.trim()));
+            }
+        }
+    }
+
     private class UploadFocusListener implements FocusListener {
+        @Override
         public void focusGained(FocusEvent e) {
             if (remoteUploadFileNameInput.getText().equalsIgnoreCase(DEFAULT_REMOTE_INPUT)) {
                 remoteUploadFileNameInput.setText("");
             }
         }
 
+        @Override
         public void focusLost(FocusEvent e) {
             if ("".equalsIgnoreCase(remoteUploadFileNameInput.getText())) {
                 remoteUploadFileNameInput.setText(DEFAULT_REMOTE_INPUT);
@@ -450,12 +454,14 @@ public class UiWindow extends JFrame implements ActionListener {
     }
 
     private class DownloadFocusListener implements FocusListener {
+        @Override
         public void focusGained(FocusEvent e) {
             if (remoteDownloadFileNameInput.getText().equalsIgnoreCase(DEFAULT_REMOTE_INPUT)) {
                 remoteDownloadFileNameInput.setText("");
             }
         }
 
+        @Override
         public void focusLost(FocusEvent e) {
             if ("".equalsIgnoreCase(remoteDownloadFileNameInput.getText())) {
                 remoteDownloadFileNameInput.setText(DEFAULT_REMOTE_INPUT);
@@ -468,7 +474,7 @@ public class UiWindow extends JFrame implements ActionListener {
         public void windowClosing(WindowEvent e)
         {
             if ("Disconnect".equals(loginButton.getText()) && loggedin) {
-                LOGGER.info("Disconnect request sent");
+                LOGGER.info("Logout request sent");
                 logOut();
             }
         }
