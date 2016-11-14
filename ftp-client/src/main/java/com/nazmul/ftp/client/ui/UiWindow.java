@@ -16,6 +16,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -193,6 +196,8 @@ public class UiWindow extends JFrame implements ActionListener {
     private void configureWindow() {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+        addWindowListener(new CustomWindowAdapter());
+
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         Double width = screen.width * 0.5;
         Double height = screen.height * 0.7;
@@ -206,17 +211,25 @@ public class UiWindow extends JFrame implements ActionListener {
         JOptionPane.showMessageDialog(this, s, "Error: ", JOptionPane.WARNING_MESSAGE);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == loginButton) {
             if ("Connect".equals(loginButton.getText())) {
+                LOGGER.info("Login request sent");
                 login();
 
             } else if ("Disconnect".equals(loginButton.getText()) && loggedin) {
+                LOGGER.info("Disconnect request sent");
                 logOut();
             }
 
         } else if (e.getSource() == uploadChooser && loggedin) {
-            uploadFile();
+            try {
+                uploadFile();
+            } catch (InvalidArgException inval) {
+                LOGGER.warn(inval.getMessage());
+                logArea.append("Status: " + inval.getMessage() + "\n");
+            }
 
         } else if (e.getSource() == downloadChooser && loggedin) {
             downloadFile();
@@ -276,22 +289,15 @@ public class UiWindow extends JFrame implements ActionListener {
             logArea.append("Status: Logging into " + host + "\n");
             responseCode = helper.authenticate(LOGIN, username, password);
 
-        } catch (SocketException socket) {
-            logArea.append("Status: " + socket.getMessage() + "\n");
-        } catch (UnknownHostException unknown) {
-            logArea.append("Status: " + unknown.getMessage() + "\n");
-        } catch (IOException io) {
+        } catch (IOException | InvalidArgException io) {
             logArea.append("Status: " + io.getMessage() + "\n");
-        } catch (InvalidArgException invalid) {
-            logArea.append("Status: " + invalid.getMessage() + "\n");
         } finally {
             // successfully logged in
             if (responseCode.trim().equals(String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED))) {
                 loggedin = true;
-                // If server request was successful
-                if (loggedin) {
-                    onResponseCode(Short.parseShort(responseCode.trim()));
-                }
+                onResponseCode(Short.parseShort(responseCode.trim()));
+            } else {
+                onResponseCode(Short.parseShort(responseCode.trim()));
             }
         }
 
@@ -307,32 +313,31 @@ public class UiWindow extends JFrame implements ActionListener {
             logArea.append("Status: Logging out of " + host + "\n");
             responseCode = helper.sendMessageRequest(LOGOUT + username + password);
 
-        } catch (SocketException socket) {
-            logArea.append("Status: " + socket.getMessage() + "\n");
-        } catch (UnknownHostException unknown) {
-            logArea.append("Status: " + unknown.getMessage() + "\n");
-        } catch (IOException io) {
+        } catch (IOException | InvalidArgException io) {
             logArea.append("Status: " + io.getMessage() + "\n");
-        } catch (InvalidArgException invalid) {
-            logArea.append("Status: " + invalid.getMessage() + "\n");
         } finally {
             if (responseCode.trim().equals(String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED))) {
                 loggedin = false;
-                // If server request was successful
-                if (!loggedin) {
-                    onResponseCode(Short.parseShort(responseCode.trim()));
-                }
+                onResponseCode(Short.parseShort(responseCode.trim()));
 
                 try {
                     helper.done();
                 } catch (SocketException e) {
                     logArea.append("Status: " + e.getMessage() + "\n");
                 }
+
+            } else {
+                onResponseCode(Short.parseShort(responseCode.trim()));
             }
         }
     }
 
-    private void uploadFile() {
+    private void uploadFile() throws InvalidArgException {
+
+        File fileSelected = uploadChooser.getSelectedFile();
+        if (fileSelected != null && fileSelected.length() != 1) {
+            throw new InvalidArgException("Must selected a file to proceed");
+        }
 
         int uploadResult = uploadChooser.getDialogType();
 
@@ -357,19 +362,15 @@ public class UiWindow extends JFrame implements ActionListener {
                         responseCode = helper.uploadDataPacket(WRQ, username, password, event);
                     }
 
-                } catch (InvalidArgException inval) {
+                } catch (InvalidArgException | IOException inval) {
                     logArea.append("Status: " + inval.getMessage() + "\n");
-                } catch (UnknownHostException unknown) {
-                    logArea.append("Status: " + unknown.getMessage() + "\n");
-                } catch (SocketException socket) {
-                    logArea.append("Status: " + socket.getMessage() + "\n");
-                } catch (IOException io) {
-                    logArea.append("Status: " + io.getMessage() + "\n");
                 } finally {
                     // if file was successfully uploaded
                     if (responseCode.trim().equals(String.valueOf(ResponseCode.CLOSING_DATA_CONNECTION))) {
                         boolean uploaded = true;
                         // If upload request was successful
+                        onResponseCode(Short.parseShort(responseCode.trim()));
+                    } else {
                         onResponseCode(Short.parseShort(responseCode.trim()));
                     }
                 }
@@ -458,6 +459,17 @@ public class UiWindow extends JFrame implements ActionListener {
         public void focusLost(FocusEvent e) {
             if ("".equalsIgnoreCase(remoteDownloadFileNameInput.getText())) {
                 remoteDownloadFileNameInput.setText(DEFAULT_REMOTE_INPUT);
+            }
+        }
+    }
+
+    private class CustomWindowAdapter extends WindowAdapter {
+        @Override
+        public void windowClosing(WindowEvent e)
+        {
+            if ("Disconnect".equals(loginButton.getText()) && loggedin) {
+                LOGGER.info("Disconnect request sent");
+                logOut();
             }
         }
     }

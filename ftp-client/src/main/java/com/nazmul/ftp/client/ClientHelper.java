@@ -8,12 +8,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-/**
- * This class is a module which provides the application logic
- * for an Echo client using connectionless datagram socket.
- *
- * @author M. L. Liu
- */
 public class ClientHelper {
     private final DataSocket mySocket;
     private final InetAddress serverHost;

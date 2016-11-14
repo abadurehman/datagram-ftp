@@ -4,7 +4,8 @@ import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.util.CommonUtils;
 import org.apache.log4j.Logger;
 
-import javax.swing.*;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 
 public class ClientUtils {
 
