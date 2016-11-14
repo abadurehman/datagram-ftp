@@ -65,7 +65,7 @@ public final class CommonUtils {
       fileOutputStream.flush();
       fileOutputStream.close();
     } catch (FileNotFoundException e) {
-      throw new InvalidArgException(String.valueOf(ResponseCode.REQUESTED_ACTION_NOT_TAKEN_FILE_NOT_FOUND));
+      throw new InvalidArgException(String.valueOf(ResponseCode.REQUESTED_ACTION_NOT_TAKEN));
     }
   }
 

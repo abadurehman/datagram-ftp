@@ -48,7 +48,7 @@ public enum ResponseCode {
     public static final short COMMAND_NOT_IMPLEMENTED_FOR_PARAMETER             = 504;
     public static final short NOT_LOGGED_IN                                     = 530;
     public static final short NEED_ACCOUNT_FOR_STORING_FILES                    = 532;
-    public static final short REQUESTED_ACTION_NOT_TAKEN_FILE_NOT_FOUND         = 550;
+    public static final short REQUESTED_ACTION_NOT_TAKEN                        = 550;
     public static final short REQUESTED_ACTION_ABORTED_PAGE_TYPE_UNKNOWN        = 551;
     public static final short ACTION_ABORTED_EXCEEDED_STORAGE_ALLOCATION        = 552;
     public static final short ACTION_NOT_TAKEN_FILENAME_NOT_ALLOWED             = 553;

@@ -13,8 +13,6 @@ import com.nazmul.ftp.server.session.WRQPacket;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
-import java.net.BindException;
-import java.net.SocketException;
 
 public class Server {
 
@@ -72,10 +70,17 @@ public class Server {
         return loggedInUser;
 
       case ProtocolCode.DATA:
-        //download data request command is received and response sent to client is okay
-        socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.COMMAND_OKAY));
         //now send data to the client
-        writePacket.writeDataOnClient(request, socket, loggedInUser.getUsername());
+        if (request.getMessage().trim().endsWith("restricted")) {
+          LOGGER.warn("Restricted data access");
+          socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.REQUESTED_ACTION_NOT_TAKEN));
+
+        } else {
+          //download data request command is received and response sent to client is okay
+          socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.COMMAND_OKAY));
+
+          writePacket.writeDataOnClient(request, socket, loggedInUser.getUsername());
+        }
         return loggedInUser;
 
       default:

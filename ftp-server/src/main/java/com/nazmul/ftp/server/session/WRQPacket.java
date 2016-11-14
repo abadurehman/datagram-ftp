@@ -35,8 +35,8 @@ public class WRQPacket {
       socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN));
 
     } catch (InvalidArgException e) {
+      dataWritten = false;
       socket.sendMessage(request.getHost(), request.getPort(), e.getMessage());
-
     } finally {
       // If file was created successfully
       if (dataWritten) {

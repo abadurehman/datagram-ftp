@@ -117,8 +117,6 @@ public class UiWindow extends JFrame implements ActionListener {
 
   private ClientHelper helper;
 
-  private String responseCode;
-
   public UiWindow() {
 
     super("Datagram FTP");
@@ -336,12 +334,14 @@ public class UiWindow extends JFrame implements ActionListener {
       case ResponseCode.CANT_OPEN_DATA_CONNECTION:
         logArea.append("Status: " + code + " Cannot open data connnection\n");
         break;
-      default:
-        LOGGER.info("Invalid response code");
+      case ResponseCode.REQUESTED_ACTION_NOT_TAKEN:
+        logArea.append("Status: " + code + " Requested action not taken. File unavailable (e.g., file not found, no access).\n");
+        break;
     }
   }
 
   private void login() {
+
     String responseCode = "";
     try {
       String host = ClientUtils.validHostAddress(serverInput);
@@ -368,6 +368,7 @@ public class UiWindow extends JFrame implements ActionListener {
   }
 
   private void logOut() {
+
     String responseCode = "";
     try {
       String host = ClientUtils.validHostAddress(serverInput);
@@ -460,6 +461,7 @@ public class UiWindow extends JFrame implements ActionListener {
   }
 
   private void sendFileToTheServer() {
+
     String responseCode = "";
     try {
       String host = ClientUtils.validHostAddress(serverInput);
@@ -484,17 +486,14 @@ public class UiWindow extends JFrame implements ActionListener {
       logArea.append("Status: " + inval.getMessage() + "\n");
     } finally {
       // if file was successfully uploaded
-      if (responseCode.trim().equals(String.valueOf(ResponseCode.CLOSING_DATA_CONNECTION))) {
-        boolean uploaded = true;
-        // If upload request was successful
-        onResponseCode(Short.parseShort(responseCode.trim()));
-      } else {
+      if (responseCode != null && !responseCode.isEmpty()) {
         onResponseCode(Short.parseShort(responseCode.trim()));
       }
     }
   }
 
   private void downloadFileFromTheServer() {
+
     String responseCode = "";
     try {
       String host = ClientUtils.validHostAddress(serverInput);
@@ -502,24 +501,37 @@ public class UiWindow extends JFrame implements ActionListener {
       String username = ClientUtils.validUsername(userInput);
       String password = ClientUtils.validPassword(passwordInput);
 
-      // Send request to download data
+
+      String curDirName = downloadChooser.getCurrentDirectory().getName();
+      String sysUsername = CommonUtils.extractUsername(username);
+      boolean validDirectory = ClientUtils.isValidDirectory(curDirName, sysUsername);
+
       logArea.append("Status: Sending a request to download data\n");
-      responseCode = helper.sendMessageRequest(DATA + username + password);
-      // if data download is allowed
-      if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
-        // send data source
-        String sourcePath = downloadChooser.getSelectedFile().getAbsolutePath();
-        String destinationPath = uploadChooser.getCurrentDirectory().getAbsolutePath();
-        FileEvent event = CommonUtils.getFileEvent(sourcePath, destinationPath);
-        logArea.append("Status: File download has started\n");
-        responseCode = helper.downloadDataPacket(DATA, username, password, event);
+
+      if (validDirectory) {
+        // Send request to download data
+        responseCode = helper.sendMessageRequest(DATA + username + password);
+
+        if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
+          // send data source
+          String sourcePath = downloadChooser.getSelectedFile().getAbsolutePath();
+          String destinationPath = uploadChooser.getCurrentDirectory().getAbsolutePath();
+          FileEvent event = CommonUtils.getFileEvent(sourcePath, destinationPath);
+          logArea.append("Status: File download has started\n");
+          responseCode = helper.downloadDataPacket(DATA, username, password, event);
+        }
+
+      } else {
+        responseCode = helper.sendMessageRequest(DATA + username + password + "restricted");
+        LOGGER.warn("Restricted data access");
+
       }
 
     } catch (InvalidArgException | IOException inval) {
       logArea.append("Status: " + inval.getMessage() + "\n");
     } finally {
       // if file was successfully downloaded
-      if (responseCode.trim().equals(String.valueOf(ResponseCode.CLOSING_DATA_CONNECTION))) {
+      if (responseCode != null && !responseCode.isEmpty()) {
         onResponseCode(Short.parseShort(responseCode.trim()));
       }
     }

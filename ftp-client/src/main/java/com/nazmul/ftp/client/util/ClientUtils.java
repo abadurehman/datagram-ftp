@@ -55,4 +55,8 @@ public class ClientUtils {
     throw new InvalidArgException("Username delimiter is not provided. It must start with '!' and end with '@'");
   }
 
+  public static boolean isValidDirectory(String dirPath, String username) {
+
+    return dirPath.equals(username);
+  }
 }
