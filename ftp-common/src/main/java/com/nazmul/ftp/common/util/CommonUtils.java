@@ -11,7 +11,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class CommonUtils {
+public final class CommonUtils {
+
+  private CommonUtils() {
+
+  }
 
   public static short extractOpcode(String str) throws InvalidArgException {
 
@@ -47,7 +51,7 @@ public class CommonUtils {
     return str.charAt(str.length() - 1) == ch;
   }
 
-  public static void createAndWriteFile(FileEvent fileEvent, String username) throws IOException {
+  public static void createAndWriteFile(FileEvent fileEvent, String username) throws IOException, InvalidArgException {
 
     String destinationPath = fileEvent.getDestinationDirectory() + "/" + username;
     String outputFile = destinationPath + "/" + fileEvent.getFilename();
@@ -61,9 +65,7 @@ public class CommonUtils {
       fileOutputStream.flush();
       fileOutputStream.close();
     } catch (FileNotFoundException e) {
-      throw new FileNotFoundException(String.valueOf(ResponseCode.REQUESTED_ACTION_NOT_TAKEN_FILE_NOT_FOUND));
-    } catch (IOException e) {
-      System.out.println(e.getMessage());
+      throw new InvalidArgException(String.valueOf(ResponseCode.REQUESTED_ACTION_NOT_TAKEN_FILE_NOT_FOUND));
     }
   }
 
@@ -83,8 +85,9 @@ public class CommonUtils {
         byte[] fileBytes = new byte[len.intValue()];
         int read = 0;
         int numRead = 0;
-        while (read < fileBytes.length && (numRead = diStream.read(fileBytes, read, fileBytes.length - read)) >= 0) {
+        while (read < fileBytes.length && numRead >= 0) {
           read += numRead;
+          numRead = diStream.read(fileBytes, read, fileBytes.length - read);
         }
         fileEvent.setFileSize(len);
         fileEvent.setFileData(fileBytes);

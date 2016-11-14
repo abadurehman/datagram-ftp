@@ -195,7 +195,7 @@ public class UiWindow extends JFrame implements ActionListener {
     remoteUploadFileNameInput.addFocusListener(new UploadFocusListener());
 
     uploadChooser = new JFileChooser();
-    uploadChooser.setDialogType(JFileChooser.OPEN_DIALOG);
+    uploadChooser.setDialogType(JFileChooser.FILES_AND_DIRECTORIES);
     uploadChooser.setApproveButtonText("Upload");
 
     JPanel sendContent = new JPanel();
@@ -396,23 +396,21 @@ public class UiWindow extends JFrame implements ActionListener {
   private void uploadFile() throws InvalidArgException {
 
     File fileSelected = uploadChooser.getSelectedFile();
-    if (fileSelected != null && fileSelected.length() != 1) {
-      throw new InvalidArgException("Must selected a file to proceed");
+    if (fileSelected == null) {
+      throw new InvalidArgException("Must select a file to proceed");
     }
 
-    int uploadResult = uploadChooser.getDialogType();
+    Long uploadResult = fileSelected.length();
 
-    switch (uploadResult) {
-      case JFileChooser.APPROVE_OPTION:
-        sendFileToTheServer();
-        break;
-      case JFileChooser.CANCEL_OPTION:
+    switch (uploadResult.intValue()) {
+      case 0:
         logArea.append("Status: Uploading cancelled\n");
         break;
-      default:
-        logArea.append("Problem uploading a file\n");
-    }
 
+      default:
+        LOGGER.info(uploadChooser.getApproveButtonText());
+        sendFileToTheServer();
+    }
   }
 
   private void downloadFile() {

@@ -23,6 +23,7 @@ public abstract class AbstractSocket extends DatagramSocket implements IDataSock
     super(portNo);
   }
 
+  @Override
   public void sendMessage(InetAddress receiverHost,
                           int receiverPort,
                           String message)
@@ -33,6 +34,7 @@ public abstract class AbstractSocket extends DatagramSocket implements IDataSock
     send(datagram);
   }
 
+  @Override
   public void login(InetAddress host,
                     int port,
                     String opcode,
@@ -51,6 +53,7 @@ public abstract class AbstractSocket extends DatagramSocket implements IDataSock
     send(datagram);
   }
 
+  @Override
   public String receiveConfirmationMessage()
           throws IOException {
 
