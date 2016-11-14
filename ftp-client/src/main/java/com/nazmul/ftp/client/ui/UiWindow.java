@@ -146,22 +146,20 @@ public class UiWindow extends JFrame implements ActionListener {
     top.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
     serverLabel = new JLabel("Host: ");
-
     serverInput = new JTextField("localhost");
     serverInput.setPreferredSize(new Dimension(120, 20));
+    serverInput.setEnabled(false);
 
     portLabel = new JLabel("Port: ");
-
     portInput = new JTextField("3000");
     portInput.setPreferredSize(new Dimension(50, 20));
+    portInput.setEnabled(false);
 
     userLabel = new JLabel("Username : ");
-
     userInput = new JTextField("!demo@");
     userInput.setPreferredSize(new Dimension(120, 20));
 
     passwordLabel = new JLabel("Password : ");
-
     passwordInput = new JPasswordField("demo!");
     passwordInput.setPreferredSize(new Dimension(100, 20));
 
@@ -195,7 +193,7 @@ public class UiWindow extends JFrame implements ActionListener {
     remoteUploadFileNameInput.addFocusListener(new UploadFocusListener());
 
     uploadChooser = new JFileChooser();
-    uploadChooser.setDialogType(JFileChooser.FILES_AND_DIRECTORIES);
+    uploadChooser.setDialogType(JFileChooser.OPEN_DIALOG);
     uploadChooser.setApproveButtonText("Upload");
 
     JPanel sendContent = new JPanel();
@@ -268,9 +266,9 @@ public class UiWindow extends JFrame implements ActionListener {
   }
 
   @Override
-  public void actionPerformed(ActionEvent e) {
+  public void actionPerformed(ActionEvent event) {
 
-    if (e.getSource() == loginButton) {
+    if (event.getSource() == loginButton) {
       if ("Connect".equals(loginButton.getText())) {
         LOGGER.info("Login request sent");
         login();
@@ -280,18 +278,25 @@ public class UiWindow extends JFrame implements ActionListener {
         logOut();
       }
 
-    } else if (e.getSource() == uploadChooser && loggedin) {
+    } else if (event.getSource() == uploadChooser && loggedin) {
       try {
-        uploadFile();
+        String command = event.getActionCommand();
+        uploadFile(command);
 
       } catch (InvalidArgException inval) {
         LOGGER.warn(inval.getMessage());
         logArea.append("Status: " + inval.getMessage() + "\n");
       }
 
-    } else if (e.getSource() == downloadChooser && loggedin) {
-      downloadFile();
+    } else if (event.getSource() == downloadChooser && loggedin) {
+      try {
+        String command = event.getActionCommand();
+        downloadFile(command);
 
+      } catch (InvalidArgException inval) {
+        LOGGER.warn(inval.getMessage());
+        logArea.append("Status: " + inval.getMessage() + "\n");
+      }
     }
   }
 
@@ -301,18 +306,14 @@ public class UiWindow extends JFrame implements ActionListener {
       case ResponseCode.USER_LOGGED_IN_PROCEED:
         logArea.append("Status: " + code + " Logged in\n");
         loginButton.setText("Disconnect");
-        serverInput.setEnabled(false);
         userInput.setEnabled(false);
         passwordInput.setEnabled(false);
-        portInput.setEnabled(false);
         break;
       case ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED:
         logArea.append("Status: " + code + " Logged out\n");
         loginButton.setText("Connect");
-        serverInput.setEnabled(true);
         userInput.setEnabled(true);
         passwordInput.setEnabled(true);
-        portInput.setEnabled(true);
         break;
       case ResponseCode.INVALID_USERNAME_OR_PASSWORD:
         logArea.append("Status: " + code + " Invalid username or password\n");
@@ -332,13 +333,16 @@ public class UiWindow extends JFrame implements ActionListener {
       case ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN:
         logArea.append("Status: " + code + " File transfer was unsuccessful\n");
         break;
+      case ResponseCode.CANT_OPEN_DATA_CONNECTION:
+        logArea.append("Status: " + code + " Cannot open data connnection\n");
+        break;
       default:
         LOGGER.info("Invalid response code");
     }
   }
 
   private void login() {
-
+    String responseCode = "";
     try {
       String host = ClientUtils.validHostAddress(serverInput);
       String port = ClientUtils.validServerPort(portInput);
@@ -353,10 +357,10 @@ public class UiWindow extends JFrame implements ActionListener {
       logArea.append("Status: " + io.getMessage() + "\n");
     } finally {
       // successfully logged in
-      if (responseCode.trim().equals(String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED))) {
+      if (responseCode != null && responseCode.trim().equals(String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED))) {
         loggedin = true;
         onResponseCode(Short.parseShort(responseCode.trim()));
-      } else {
+      } else if (!responseCode.isEmpty()) {
         onResponseCode(Short.parseShort(responseCode.trim()));
       }
     }
@@ -364,7 +368,7 @@ public class UiWindow extends JFrame implements ActionListener {
   }
 
   private void logOut() {
-
+    String responseCode = "";
     try {
       String host = ClientUtils.validHostAddress(serverInput);
       String port = ClientUtils.validServerPort(portInput);
@@ -377,7 +381,7 @@ public class UiWindow extends JFrame implements ActionListener {
     } catch (IOException | InvalidArgException io) {
       logArea.append("Status: " + io.getMessage() + "\n");
     } finally {
-      if (responseCode.trim().equals(String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED))) {
+      if (responseCode != null && responseCode.trim().equals(String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED))) {
         loggedin = false;
         onResponseCode(Short.parseShort(responseCode.trim()));
 
@@ -387,50 +391,76 @@ public class UiWindow extends JFrame implements ActionListener {
           logArea.append("Status: " + e.getMessage() + "\n");
         }
 
-      } else {
+      } else if (!responseCode.isEmpty()) {
         onResponseCode(Short.parseShort(responseCode.trim()));
       }
     }
   }
 
-  private void uploadFile() throws InvalidArgException {
-
+  private void uploadFile(String command) throws InvalidArgException {
+    //check if file is selected
     File fileSelected = uploadChooser.getSelectedFile();
     if (fileSelected == null) {
+      displayError("Must select a file to proceed");
       throw new InvalidArgException("Must select a file to proceed");
     }
+    //validate if selected file exists
+    if (!fileSelected.exists()) {
+      displayError("Selected file does not exist in the system");
+      throw new InvalidArgException("Selected file does not exist in the system");
+    }
 
-    Long uploadResult = fileSelected.length();
+    remoteUploadFileNameInput.setText(fileSelected.getName());
 
-    switch (uploadResult.intValue()) {
-      case 0:
-        logArea.append("Status: Uploading cancelled\n");
-        break;
+    //validate file size does not exceed 64 kilobytes
+    long fileSizeKb = fileSelected.length() / 1024;
+    final int MAX_FILE_SIZE = 64;
+    if (fileSizeKb > MAX_FILE_SIZE) {
+      displayError("File size should not exceed " + MAX_FILE_SIZE + "kb");
+      throw new InvalidArgException("File size should not exceed " + MAX_FILE_SIZE + "kb");
+    }
 
-      default:
-        LOGGER.info(uploadChooser.getApproveButtonText());
-        sendFileToTheServer();
+    if (command.equals(JFileChooser.APPROVE_SELECTION)) {
+      LOGGER.info("Uploading " + fileSelected.getName() + " has started");
+      sendFileToTheServer();
+    } else if (command.equals(JFileChooser.CANCEL_SELECTION)) {
+      logArea.append("Status: Uploading cancelled\n");
     }
   }
 
-  private void downloadFile() {
+  private void downloadFile(String command) throws InvalidArgException {
+    //check if file is selected
+    File fileSelected = downloadChooser.getSelectedFile();
+    if (fileSelected == null) {
+      displayError("Must select a file to proceed");
+      throw new InvalidArgException("Must select a file to proceed");
+    }
+    //validate if selected file exists
+    if (!fileSelected.exists()) {
+      displayError("Selected file does not exist in the server");
+      throw new InvalidArgException("Selected file does not exist in the server");
+    }
 
-    int downloadResult = downloadChooser.getDialogType();
+    remoteDownloadFileNameInput.setText(fileSelected.getName());
 
-    switch (downloadResult) {
-      case JFileChooser.APPROVE_OPTION:
-        downloadFileFromTheServer();
-        break;
-      case JFileChooser.CANCEL_OPTION:
-        logArea.append("Status: Downloading cancelled\n");
-        break;
-      default:
-        logArea.append("Problem");
+    //validate file size does not exceed 64 kilobytes
+    long fileSizeKb = fileSelected.length() / 1024;
+    final int MAX_FILE_SIZE = 64;
+    if (fileSizeKb > MAX_FILE_SIZE) {
+      displayError("File size should not exceed " + MAX_FILE_SIZE + "kb");
+      throw new InvalidArgException("File size should not exceed " + MAX_FILE_SIZE + "kb");
+    }
+
+    if (command.equals(JFileChooser.APPROVE_SELECTION)) {
+      LOGGER.info("Downloading " + fileSelected.getName() + " has started");
+      downloadFileFromTheServer();
+    } else if (command.equals(JFileChooser.CANCEL_SELECTION)) {
+      logArea.append("Status: Downloading cancelled\n");
     }
   }
 
   private void sendFileToTheServer() {
-
+    String responseCode = "";
     try {
       String host = ClientUtils.validHostAddress(serverInput);
       String port = ClientUtils.validServerPort(portInput);
@@ -465,7 +495,7 @@ public class UiWindow extends JFrame implements ActionListener {
   }
 
   private void downloadFileFromTheServer() {
-
+    String responseCode = "";
     try {
       String host = ClientUtils.validHostAddress(serverInput);
       String port = ClientUtils.validServerPort(portInput);

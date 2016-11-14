@@ -44,18 +44,12 @@ public class Server {
 
         } else if (loggedInUser != null && !loggedInUser.isAuthenticated()) {
           loggedInUser = loginPacket.processAuthentication(opcode, message, request, socket);
+        } else {
+          socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.CANT_OPEN_DATA_CONNECTION));
         }
       }
 
-    } catch (BindException e) {
-      LOGGER.debug(e.getMessage());
-    } catch (SocketException e) {
-      LOGGER.debug(e.getMessage());
-    } catch (IOException e) {
-      LOGGER.debug(e.getMessage());
-    } catch (InvalidArgException e) {
-      LOGGER.debug(e.getMessage());
-    } catch (ClassNotFoundException e) {
+    } catch (IOException | InvalidArgException | ClassNotFoundException e) {
       LOGGER.debug(e.getMessage());
     }
   }
