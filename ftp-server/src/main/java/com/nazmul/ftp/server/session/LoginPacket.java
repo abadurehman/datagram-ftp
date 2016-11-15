@@ -44,39 +44,49 @@ public class LoginPacket {
     String username = CommonUtils.extractUsername(message);
     String password = CommonUtils.extractPassword(message);
 
-    switch (opcode) {
+    if (opcode == ProtocolCode.LOGIN) {
+      LOGGER.info(ProtocolCode.LOGIN + " Authentication request received");
+      try {
+        loggedInUser = validateUser(username, password);
+        dataSocket
+                .sendMessage(
+                        request.getHost(),
+                        request.getPort(),
+                        String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED));
+        LOGGER.info(ResponseCode.USER_LOGGED_IN_PROCEED + " Authenticated");
 
-      case ProtocolCode.LOGIN:
-        LOGGER.info("Authentication request received");
-        try {
-          loggedInUser = validateUser(username, password);
-          dataSocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED));
-          LOGGER.info("Authenticated");
-
-        } catch (InvalidArgException exc) {
-          dataSocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
-          LOGGER.info("Authentication unsuccessful");
-        }
-        return loggedInUser;
-
-      case ProtocolCode.LOGOUT:
-        LOGGER.info("Disconnect request received");
-        try {
-          loggedInUser = validateUser(username, password);
-          dataSocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED));
-          loggedInUser.setAuthenticated(false);
-          LOGGER.info("User logged out");
-
-        } catch (InvalidArgException exc) {
-          dataSocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
-          LOGGER.debug("Disconnect unsuccessful");
-        }
-        return loggedInUser;
-
-      default:
-        dataSocket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED));
-
+      } catch (InvalidArgException exc) {
+        dataSocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
+        LOGGER.info(exc.getMessage() + " Authentication unsuccessful");
+      }
+      return loggedInUser;
     }
+
+    if (opcode == ProtocolCode.LOGOUT) {
+      LOGGER.info(ProtocolCode.LOGOUT + " Logout request received");
+      try {
+        loggedInUser = validateUser(username, password);
+        dataSocket
+                .sendMessage(
+                        request.getHost(),
+                        request.getPort(),
+                        String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED));
+        loggedInUser.setAuthenticated(false);
+        LOGGER.info(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED + " User logged out");
+
+      } catch (InvalidArgException exc) {
+        dataSocket.sendMessage(request.getHost(), request.getPort(), exc.getMessage());
+        LOGGER.debug(exc.getMessage() + " Logout was unsuccessful");
+      }
+      return loggedInUser;
+    }
+    //if invalid opcode was received
+    dataSocket
+            .sendMessage(
+                    request.getHost(),
+                    request.getPort(),
+                    String.valueOf(ResponseCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED));
+
     return null;
   }
 

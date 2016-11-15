@@ -16,14 +16,19 @@ public class WRQPacket {
 
   static final Logger LOGGER = Logger.getLogger(WRQPacket.class);
 
-  public void writeDataOnServer(Data request, DataSocket socket, String username) throws IOException, ClassNotFoundException {
+  public void writeDataOnServer(Data request, DataSocket socket, String username)
+          throws IOException, ClassNotFoundException {
 
     boolean dataWritten = true;
 
     FileEvent fileEvent = socket.receiveDataPacketsWithSender();
     if ("Error".equalsIgnoreCase(fileEvent.getStatus())) {
       dataWritten = false;
-      socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN));
+      socket
+              .sendMessage(
+                      request.getHost(),
+                      request.getPort(),
+                      String.valueOf(ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN));
     }
 
     try {
@@ -32,21 +37,36 @@ public class WRQPacket {
 
     } catch (FileNotFoundException file) {
       dataWritten = false;
-      socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN));
+      socket
+              .sendMessage(
+                      request.getHost(),
+                      request.getPort(),
+                      String.valueOf(ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN));
+
+      LOGGER.info(ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN + " Writing data was unsuccessful");
+      LOGGER.warn(file.getMessage());
 
     } catch (InvalidArgException e) {
       dataWritten = false;
       socket.sendMessage(request.getHost(), request.getPort(), e.getMessage());
+
+      LOGGER.warn(e.getMessage() + " Writing data was unsuccessful");
+
     } finally {
       // If file was created successfully
       if (dataWritten) {
-        LOGGER.info("Successfully written data");
-        socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.CLOSING_DATA_CONNECTION));
+        LOGGER.info(ResponseCode.CLOSING_DATA_CONNECTION + " Successfully written data");
+        socket
+                .sendMessage(
+                        request.getHost(),
+                        request.getPort(),
+                        String.valueOf(ResponseCode.CLOSING_DATA_CONNECTION));
       }
     }
   }
 
-  public void writeDataOnClient(Data request, DataSocket socket, String username) throws IOException, ClassNotFoundException {
+  public void writeDataOnClient(Data request, DataSocket socket, String username)
+          throws IOException, ClassNotFoundException {
 
     writeDataOnServer(request, socket, username);
   }

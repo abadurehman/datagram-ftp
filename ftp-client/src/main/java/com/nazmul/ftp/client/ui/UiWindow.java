@@ -184,7 +184,11 @@ public class UiWindow extends JFrame implements ActionListener {
     /** Setting sending components **/
     upload = new JPanel();
     upload.setLayout(new BorderLayout());
-    upload.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Upload a file"));
+    upload.setBorder(
+                    BorderFactory
+                            .createTitledBorder(
+                                    BorderFactory
+                                            .createLineBorder(Color.GRAY), "Upload a file"));
     remoteUploadFileNameInput = new JTextField(DEFAULT_REMOTE_INPUT);
 
     //Simulate prompt
@@ -203,7 +207,11 @@ public class UiWindow extends JFrame implements ActionListener {
     /** Setting reception components */
     download = new JPanel();
     download.setLayout(new BorderLayout());
-    download.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Download a file"));
+    download.setBorder(
+            BorderFactory
+                    .createTitledBorder(
+                            BorderFactory
+                                    .createLineBorder(Color.GRAY), "Download a file"));
     remoteDownloadFileNameInput = new JTextField(DEFAULT_REMOTE_INPUT);
 
     //Simulate prompt
@@ -225,13 +233,18 @@ public class UiWindow extends JFrame implements ActionListener {
 
     /** Adding logging area **/
     logArea = new JTextArea();
-    logArea.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Logs"));
+    logArea.setBorder(
+            BorderFactory
+                    .createTitledBorder(
+                            BorderFactory.createLineBorder(Color.GRAY), "Logs"));
     logArea.setEnabled(false);
     logArea.setDisabledTextColor(Color.GREEN);
     logArea.setToolTipText("System logs");
 
-    scroll = new JScrollPane(logArea,
-            ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+    scroll = new JScrollPane(
+            logArea,
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     scroll.setPreferredSize(new Dimension(getWidth(), 150));
 
     caret = (DefaultCaret) logArea.getCaret();
@@ -302,41 +315,53 @@ public class UiWindow extends JFrame implements ActionListener {
 
     switch (code) {
       case ResponseCode.USER_LOGGED_IN_PROCEED:
+        LOGGER.info(code + " Logged in");
         logArea.append("Status: " + code + " Logged in\n");
         loginButton.setText("Disconnect");
         userInput.setEnabled(false);
         passwordInput.setEnabled(false);
         break;
       case ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED:
+        LOGGER.info(code + " Logged out");
         logArea.append("Status: " + code + " Logged out\n");
         loginButton.setText("Connect");
         userInput.setEnabled(true);
         passwordInput.setEnabled(true);
         break;
       case ResponseCode.INVALID_USERNAME_OR_PASSWORD:
+        LOGGER.info(code + " Invalid username or password");
         logArea.append("Status: " + code + " Invalid username or password\n");
         break;
       case ResponseCode.USERNAME_OK_NEED_PASSWORD:
+        LOGGER.info(code + " Username ok, need password");
         logArea.append("Status: " + code + " Username ok, need password\n");
         break;
       case ResponseCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED:
+        LOGGER.info(code + " Syntax error in parameters or arguments");
         logArea.append("Status: " + code + " Syntax error in parameters or arguments\n");
         break;
       case ResponseCode.CLOSING_DATA_CONNECTION:
+        LOGGER.info(code + " Closing data connection. Requested file action successful");
         logArea.append("Status: " + code + " Closing data connection. Requested file action successful\n");
         break;
       case ResponseCode.COMMAND_OKAY:
+        LOGGER.info(code + " The requested action has been successfully completed");
         logArea.append("Status: " + code + " The requested action has been successfully completed\n");
         break;
       case ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN:
+        LOGGER.info(code + " File transfer was unsuccessful");
         logArea.append("Status: " + code + " File transfer was unsuccessful\n");
         break;
       case ResponseCode.CANT_OPEN_DATA_CONNECTION:
+        LOGGER.info(code + " Cannot open data connnection");
         logArea.append("Status: " + code + " Cannot open data connnection\n");
         break;
       case ResponseCode.REQUESTED_ACTION_NOT_TAKEN:
+        LOGGER.info(code + " Requested action not taken. File unavailable (e.g., file not found, no access)");
         logArea.append("Status: " + code + " Requested action not taken. File unavailable (e.g., file not found, no access).\n");
         break;
+      default:
+        LOGGER.info("Runtime exception occured");
     }
   }
 
@@ -357,9 +382,14 @@ public class UiWindow extends JFrame implements ActionListener {
       logArea.append("Status: " + io.getMessage() + "\n");
     } finally {
       // successfully logged in
-      if (responseCode != null && responseCode.trim().equals(String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED))) {
+      if (responseCode != null
+              && responseCode
+              .trim()
+              .equals(String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED))) {
+
         loggedin = true;
         onResponseCode(Short.parseShort(responseCode.trim()));
+
       } else if (!responseCode.isEmpty()) {
         onResponseCode(Short.parseShort(responseCode.trim()));
       }
@@ -382,7 +412,11 @@ public class UiWindow extends JFrame implements ActionListener {
     } catch (IOException | InvalidArgException io) {
       logArea.append("Status: " + io.getMessage() + "\n");
     } finally {
-      if (responseCode != null && responseCode.trim().equals(String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED))) {
+      if (responseCode != null
+              && responseCode
+              .trim()
+              .equals(String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED))) {
+
         loggedin = false;
         onResponseCode(Short.parseShort(responseCode.trim()));
 
@@ -414,7 +448,7 @@ public class UiWindow extends JFrame implements ActionListener {
     remoteUploadFileNameInput.setText(fileSelected.getName());
 
     //validate file size does not exceed 64 kilobytes
-    long fileSizeKb = fileSelected.length() / 1024;
+    final long fileSizeKb = fileSelected.length() / 1024;
     final int MAX_FILE_SIZE = 64;
     if (fileSizeKb > MAX_FILE_SIZE) {
       displayError("File size should not exceed " + MAX_FILE_SIZE + "kb");
@@ -523,8 +557,6 @@ public class UiWindow extends JFrame implements ActionListener {
 
       } else {
         responseCode = helper.sendMessageRequest(DATA + username + password + "restricted");
-        LOGGER.warn("Restricted data access");
-
       }
 
     } catch (InvalidArgException | IOException inval) {

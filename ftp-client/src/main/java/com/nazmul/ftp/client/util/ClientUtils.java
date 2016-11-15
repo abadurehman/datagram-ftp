@@ -8,9 +8,13 @@ import org.apache.log4j.Logger;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-public class ClientUtils {
+public final class ClientUtils {
 
   public static final Logger LOGGER = Logger.getLogger(ClientUtils.class);
+
+  private ClientUtils() {
+
+  }
 
   public static String validServerPort(JTextField portField) throws InvalidArgException {
 

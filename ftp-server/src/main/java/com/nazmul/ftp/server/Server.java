@@ -43,7 +43,11 @@ public class Server {
         } else if (loggedInUser != null && !loggedInUser.isAuthenticated()) {
           loggedInUser = loginPacket.processAuthentication(opcode, message, request, socket);
         } else {
-          socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.CANT_OPEN_DATA_CONNECTION));
+          socket
+                  .sendMessage(
+                          request.getHost(),
+                          request.getPort(),
+                          String.valueOf(ResponseCode.CANT_OPEN_DATA_CONNECTION));
         }
       }
 
@@ -64,7 +68,11 @@ public class Server {
 
       case ProtocolCode.WRQ:
         //write request command is received and response sent to client is okay
-        socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.COMMAND_OKAY));
+        socket
+                .sendMessage(
+                        request.getHost(),
+                        request.getPort(),
+                        String.valueOf(ResponseCode.COMMAND_OKAY));
         //now write data on the server
         writePacket.writeDataOnServer(request, socket, loggedInUser.getUsername());
         return loggedInUser;
@@ -73,11 +81,19 @@ public class Server {
         //now send data to the client
         if (request.getMessage().trim().endsWith("restricted")) {
           LOGGER.warn("Restricted data access");
-          socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.REQUESTED_ACTION_NOT_TAKEN));
+          socket
+                  .sendMessage(
+                          request.getHost(),
+                          request.getPort(),
+                          String.valueOf(ResponseCode.REQUESTED_ACTION_NOT_TAKEN));
 
         } else {
           //download data request command is received and response sent to client is okay
-          socket.sendMessage(request.getHost(), request.getPort(), String.valueOf(ResponseCode.COMMAND_OKAY));
+          socket
+                  .sendMessage(
+                          request.getHost(),
+                          request.getPort(),
+                          String.valueOf(ResponseCode.COMMAND_OKAY));
 
           writePacket.writeDataOnClient(request, socket, loggedInUser.getUsername());
         }

@@ -5,7 +5,7 @@ public enum ProtocolCode {
 
   public static final short RRQ = 100;
 
-  public static final short WRQ = 200;
+  public static final short WRQ = 111;
 
   public static final short DATA = 300;
 

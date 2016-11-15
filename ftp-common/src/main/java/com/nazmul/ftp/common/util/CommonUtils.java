@@ -51,7 +51,8 @@ public final class CommonUtils {
     return str.charAt(str.length() - 1) == ch;
   }
 
-  public static void createAndWriteFile(FileEvent fileEvent, String username) throws IOException, InvalidArgException {
+  public static void createAndWriteFile(FileEvent fileEvent, String username)
+          throws IOException, InvalidArgException {
 
     String destinationPath = fileEvent.getDestinationDirectory() + "/" + username;
     String outputFile = destinationPath + "/" + fileEvent.getFilename();

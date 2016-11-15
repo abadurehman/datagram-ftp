@@ -8,12 +8,6 @@ public class ClientApplication {
 
   public static void main(String... args) {
 
-    SwingUtilities.invokeLater(new Runnable() {
-
-      public void run() {
-
-        new UiWindow().setVisible(true);
-      }
-    });
+    SwingUtilities.invokeLater(() -> new UiWindow().setVisible(true));
   }
 }

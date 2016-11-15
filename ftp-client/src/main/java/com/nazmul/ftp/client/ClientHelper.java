@@ -24,7 +24,8 @@ public class ClientHelper {
     mySocket = new DataSocket();
   }
 
-  public String authenticate(String opcode, String user, String pass) throws IOException {
+  public String authenticate(String opcode, String user, String pass)
+          throws IOException {
 
     mySocket.login(serverHost, serverPort, opcode, user, pass);
     return mySocket.receiveConfirmationMessage();
@@ -37,13 +38,15 @@ public class ClientHelper {
     return mySocket.receiveConfirmationMessage();
   }
 
-  public String uploadDataPacket(String opcode, String user, String pass, FileEvent event) throws IOException {
+  public String uploadDataPacket(String opcode, String user, String pass, FileEvent event)
+          throws IOException {
 
     mySocket.sendPacket(event, serverHost, serverPort);
     return mySocket.receiveConfirmationMessage();
   }
 
-  public String downloadDataPacket(String opcode, String user, String pass, FileEvent event) throws IOException {
+  public String downloadDataPacket(String opcode, String user, String pass, FileEvent event)
+          throws IOException {
 
     return uploadDataPacket(opcode, user, pass, event);
   }
