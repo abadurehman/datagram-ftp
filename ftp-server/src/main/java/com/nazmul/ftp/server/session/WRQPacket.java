@@ -32,7 +32,6 @@ public class WRQPacket {
     }
 
     try {
-      LOGGER.info("Writing data has started");
       CommonUtils.createAndWriteFile(fileEvent, username);
 
     } catch (FileNotFoundException file) {
@@ -43,7 +42,7 @@ public class WRQPacket {
                       request.getPort(),
                       String.valueOf(ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN));
 
-      LOGGER.info(ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN + " Writing data was unsuccessful");
+      LOGGER.warn(ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN + " Writing data was unsuccessful");
       LOGGER.warn(file.getMessage());
 
     } catch (InvalidArgException e) {

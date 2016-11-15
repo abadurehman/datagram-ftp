@@ -67,34 +67,42 @@ public class Server {
         return loginPacket.processAuthentication(ProtocolCode.LOGOUT, message, request, socket);
 
       case ProtocolCode.WRQ:
+        LOGGER.info(ProtocolCode.WRQ + " Upload handshake received");
         //write request command is received and response sent to client is okay
         socket
                 .sendMessage(
                         request.getHost(),
                         request.getPort(),
                         String.valueOf(ResponseCode.COMMAND_OKAY));
+        LOGGER.info(ProtocolCode.ACK + " Acknowledgement sent");
+
+        LOGGER.info(ProtocolCode.WRQ + " Data upload has started");
         //now write data on the server
         writePacket.writeDataOnServer(request, socket, loggedInUser.getUsername());
         return loggedInUser;
 
       case ProtocolCode.DATA:
         //now send data to the client
-        if (request.getMessage().trim().endsWith("restricted")) {
-          LOGGER.warn("Restricted data access");
+        if (request.getMessage().trim().endsWith(String.valueOf(ProtocolCode.ERROR))) {
+          LOGGER.warn(ProtocolCode.ERROR + " Restricted data access");
           socket
                   .sendMessage(
                           request.getHost(),
                           request.getPort(),
                           String.valueOf(ResponseCode.REQUESTED_ACTION_NOT_TAKEN));
+          LOGGER.warn(ResponseCode.REQUESTED_ACTION_NOT_TAKEN + " Requested action not taken");
 
         } else {
+          LOGGER.info(ProtocolCode.DATA + " Download handshake received");
           //download data request command is received and response sent to client is okay
           socket
                   .sendMessage(
                           request.getHost(),
                           request.getPort(),
                           String.valueOf(ResponseCode.COMMAND_OKAY));
+          LOGGER.info(ProtocolCode.ACK + " Acknowledgement sent");
 
+          LOGGER.info(ProtocolCode.DATA + " Data upload has started");
           writePacket.writeDataOnClient(request, socket, loggedInUser.getUsername());
         }
         return loggedInUser;

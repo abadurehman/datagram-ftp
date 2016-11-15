@@ -281,11 +281,11 @@ public class UiWindow extends JFrame implements ActionListener {
 
     if (event.getSource() == loginButton) {
       if ("Connect".equals(loginButton.getText())) {
-        LOGGER.info("Login request sent");
+        LOGGER.info(ProtocolCode.LOGIN + " Login request sent");
         login();
 
       } else if ("Disconnect".equals(loginButton.getText()) && loggedin) {
-        LOGGER.info("Logout request sent");
+        LOGGER.info(ProtocolCode.LOGOUT + " Logout request sent");
         logOut();
       }
 
@@ -508,6 +508,7 @@ public class UiWindow extends JFrame implements ActionListener {
       responseCode = helper.sendMessageRequest(WRQ + username + password);
       // if data write is allowed
       if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
+        LOGGER.info(ResponseCode.COMMAND_OKAY + " Ready to upload");
         // send data
         String sourcePath = uploadChooser.getSelectedFile().getAbsolutePath();
         String destinationPath = downloadChooser.getCurrentDirectory().getAbsolutePath();
@@ -556,7 +557,8 @@ public class UiWindow extends JFrame implements ActionListener {
         }
 
       } else {
-        responseCode = helper.sendMessageRequest(DATA + username + password + "restricted");
+        LOGGER.info(ProtocolCode.ERROR + " Restricted data access requested");
+        responseCode = helper.sendMessageRequest(DATA + username + password + ProtocolCode.ERROR);
       }
 
     } catch (InvalidArgException | IOException inval) {

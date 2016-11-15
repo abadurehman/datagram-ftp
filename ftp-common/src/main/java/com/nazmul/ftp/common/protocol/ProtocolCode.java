@@ -11,7 +11,7 @@ public enum ProtocolCode {
 
   public static final short ACK = 400;
 
-  public static final short ERROR = 500;
+  public static final short ERROR = 222;
 
   public static final short LOGIN = 600;
 
