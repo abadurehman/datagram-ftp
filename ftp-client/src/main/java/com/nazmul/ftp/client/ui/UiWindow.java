@@ -514,7 +514,7 @@ public class UiWindow extends JFrame implements ActionListener {
         String destinationPath = downloadChooser.getCurrentDirectory().getAbsolutePath();
         FileEvent event = CommonUtils.getFileEvent(sourcePath, destinationPath);
         logArea.append("Status: File upload has started\n");
-        responseCode = helper.uploadDataPacket(WRQ, username, password, event);
+        responseCode = helper.uploadDataPacket(event);
       }
 
     } catch (InvalidArgException | IOException inval) {
@@ -553,7 +553,7 @@ public class UiWindow extends JFrame implements ActionListener {
           String destinationPath = uploadChooser.getCurrentDirectory().getAbsolutePath();
           FileEvent event = CommonUtils.getFileEvent(sourcePath, destinationPath);
           logArea.append("Status: File download has started\n");
-          responseCode = helper.downloadDataPacket(DATA, username, password, event);
+          responseCode = helper.downloadDataPacket(event);
         }
 
       } else {

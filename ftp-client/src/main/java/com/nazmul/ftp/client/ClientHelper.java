@@ -38,17 +38,17 @@ public class ClientHelper {
     return mySocket.receiveConfirmationMessage();
   }
 
-  public String uploadDataPacket(String opcode, String user, String pass, FileEvent event)
+  public String uploadDataPacket(FileEvent event)
           throws IOException {
 
     mySocket.sendPacket(event, serverHost, serverPort);
     return mySocket.receiveConfirmationMessage();
   }
 
-  public String downloadDataPacket(String opcode, String user, String pass, FileEvent event)
+  public String downloadDataPacket(FileEvent event)
           throws IOException {
 
-    return uploadDataPacket(opcode, user, pass, event);
+    return uploadDataPacket(event);
   }
 
   public void done() throws SocketException {
