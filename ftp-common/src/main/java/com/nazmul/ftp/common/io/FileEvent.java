@@ -18,10 +18,6 @@ public class FileEvent implements Serializable {
 
   private String status;
 
-  public FileEvent() {
-
-  }
-
   public String getDestinationDirectory() {
 
     return destinationDirectory;

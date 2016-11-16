@@ -1,5 +1,7 @@
 package com.nazmul.ftp.common;
 
+import com.nazmul.ftp.common.io.FileEvent;
+
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -14,5 +16,11 @@ public interface IDataSocket {
   String receiveConfirmationMessage() throws IOException;
 
   Data receivePacketsWithSender() throws IOException;
+
+  FileEvent receiveDataPacketsWithSender() throws IOException, ClassNotFoundException;
+
+  void sendPacket(FileEvent event, InetAddress host, int port) throws IOException;
+
+  Data receiveCredentials() throws IOException;
 
 }

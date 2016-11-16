@@ -20,7 +20,7 @@ public final class CommonUtils {
   public static short extractOpcode(String str) throws InvalidArgException {
 
     if (str == null || str.isEmpty()) {
-      throw new InvalidArgException("Invalid string provided {CommonUtils}");
+      throw new InvalidArgException("Invalid string provided");
     }
 
     int opIndex = str.indexOf('!');

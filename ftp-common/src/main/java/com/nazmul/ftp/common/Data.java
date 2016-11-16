@@ -11,7 +11,6 @@ public class Data {
   private String message;
 
   public Data() {
-
   }
 
   public Data(String message) {
@@ -33,14 +32,6 @@ public class Data {
     this.port = port;
   }
 
-  public void putCredentials(InetAddress host,
-                             int port,
-                             String message) {
-
-    this.host = host;
-    this.port = port;
-    this.message = message;
-  }
 
   public String getMessage() {
 

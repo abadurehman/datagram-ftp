@@ -2,7 +2,7 @@ package com.nazmul.ftp.common.exception;
 
 public class DatagramException extends Exception {
 
-  private static final long serialVersionUID = 3738591933513825964L;
+  private static final long serialVersionUID = 1L;
 
   public DatagramException() {
 

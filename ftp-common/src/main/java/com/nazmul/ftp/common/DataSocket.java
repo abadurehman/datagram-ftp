@@ -19,6 +19,7 @@ public class DataSocket extends AbstractSocket {
     super(portNo);
   }
 
+  @Override
   public Data receivePacketsWithSender() throws IOException {
 
     byte[] receiveBuffer = new byte[MAX_LEN];
@@ -29,6 +30,7 @@ public class DataSocket extends AbstractSocket {
     return returnVal;
   }
 
+  @Override
   public FileEvent receiveDataPacketsWithSender() throws IOException, ClassNotFoundException {
 
     byte[] incomingData = new byte[MAX_LEN * 1000 * 50];
@@ -40,6 +42,7 @@ public class DataSocket extends AbstractSocket {
     return (FileEvent) is.readObject();
   }
 
+  @Override
   public Data receiveCredentials() throws IOException {
 
     return receivePacketsWithSender();
