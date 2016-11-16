@@ -1,6 +1,19 @@
 # Datagram FTP
 A simple **File Transfer Protocol** client-server application using the **Java Socket API**.
 
+## Build
+Assuming you have the latest version of Java installed and the JAVA_HOME and PATH are set properly; please run these commands from the parent directory i.e. datagram-ftp
+
+### Windows
+`mvnw clean install`
+
+### *nix
+`./mvnw clean install`
+
+## Run
+First run the server: `java -jar ftp-server/target/ftp-server-1.0-SNAPSHOT-jar-with-dependencies.jar`
+Then run the client: `java -jar ftp-client/target/ftp-client-1.0-SNAPSHOT-jar-with-dependencies.jar`
+
 ## Objective(s):
 
 To practice the: 
