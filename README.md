@@ -12,6 +12,7 @@ Assuming you have the latest version of Java installed and the JAVA_HOME and PAT
 
 ## Run
 First run the server: `java -jar ftp-server/target/ftp-server-1.0-SNAPSHOT-jar-with-dependencies.jar`
+
 Then run the client: `java -jar ftp-client/target/ftp-client-1.0-SNAPSHOT-jar-with-dependencies.jar`
 
 ## Objective(s):
