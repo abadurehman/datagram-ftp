@@ -54,8 +54,8 @@ public final class CommonUtils {
   public static void createAndWriteFile(FileEvent fileEvent, String username)
           throws IOException, InvalidArgException {
 
-    String destinationPath = fileEvent.getDestinationDirectory() + "/" + username;
-    String outputFile = destinationPath + "/" + fileEvent.getFilename();
+    String destinationPath = fileEvent.getDestinationDirectory() + File.separator + username;
+    String outputFile = destinationPath + File.separator + fileEvent.getFilename();
     if (!new File(destinationPath).exists()) {
       new File(destinationPath).mkdirs();
     }
@@ -73,8 +73,8 @@ public final class CommonUtils {
   public static FileEvent getFileEvent(String sourceFilePath, String destinationPath) {
 
     FileEvent fileEvent = new FileEvent();
-    String fileName = sourceFilePath.substring(sourceFilePath.lastIndexOf("/") + 1, sourceFilePath.length());
-    String path = sourceFilePath.substring(0, sourceFilePath.lastIndexOf("/") + 1);
+    String fileName = sourceFilePath.substring(sourceFilePath.lastIndexOf(File.separator) + 1, sourceFilePath.length());
+    String path = sourceFilePath.substring(0, sourceFilePath.lastIndexOf(File.separator) + 1);
     fileEvent.setDestinationDirectory(destinationPath);
     fileEvent.setFilename(fileName);
     fileEvent.setSourceDirectory(sourceFilePath);
