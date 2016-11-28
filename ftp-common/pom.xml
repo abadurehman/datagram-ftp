@@ -19,4 +19,12 @@
         <java.version>1.8</java.version>
     </properties>
 
+    <dependencies>
+        <!-- LOGGER -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>
