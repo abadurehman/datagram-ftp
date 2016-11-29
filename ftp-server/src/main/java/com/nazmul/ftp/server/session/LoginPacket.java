@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class LoginPacket {
 
-  private static final LoggerSingleton LOGGER = LoggerSingleton.getLoggerInstance();
+  private static final LoggerSingleton LOGGER = LoggerSingleton.INSTANCE;
 
   private final UserServiceImpl userService = new UserServiceImpl();
 

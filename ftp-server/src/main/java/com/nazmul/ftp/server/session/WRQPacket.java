@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public class WRQPacket {
 
-  private static final LoggerSingleton LOGGER = LoggerSingleton.getLoggerInstance();
+  private static final LoggerSingleton LOGGER = LoggerSingleton.INSTANCE;
 
   public void writeDataOnServer(Data request, DataSocket socket, String username)
           throws IOException, ClassNotFoundException {

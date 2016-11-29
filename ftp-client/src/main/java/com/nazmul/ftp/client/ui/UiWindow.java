@@ -43,7 +43,7 @@ import javax.swing.text.DefaultCaret;
 
 public class UiWindow extends JFrame implements ActionListener {
 
-  private static final LoggerSingleton LOGGER = LoggerSingleton.getLoggerInstance();
+  private static final LoggerSingleton LOGGER = LoggerSingleton.INSTANCE;
 
   static final String LOGIN = String.valueOf(ProtocolCode.LOGIN);
 
