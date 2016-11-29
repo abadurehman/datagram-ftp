@@ -3,6 +3,7 @@ package com.nazmul.ftp.server;
 import com.nazmul.ftp.common.Data;
 import com.nazmul.ftp.common.DataSocket;
 import com.nazmul.ftp.common.exception.InvalidArgException;
+import com.nazmul.ftp.common.logger.LoggerSingleton;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
 import com.nazmul.ftp.common.protocol.ResponseCode;
 import com.nazmul.ftp.common.util.CommonUtils;
@@ -10,13 +11,11 @@ import com.nazmul.ftp.server.auth.User;
 import com.nazmul.ftp.server.session.LoginPacket;
 import com.nazmul.ftp.server.session.WRQPacket;
 
-import org.apache.log4j.Logger;
-
 import java.io.IOException;
 
 public class Server {
 
-  static final Logger LOGGER = Logger.getLogger(Server.class);
+  private static final LoggerSingleton LOGGER = LoggerSingleton.getLoggerInstance();
 
   static LoginPacket loginPacket = new LoginPacket();
 
