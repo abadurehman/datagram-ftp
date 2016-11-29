@@ -4,11 +4,10 @@ import com.nazmul.ftp.client.ClientHelper;
 import com.nazmul.ftp.client.util.ClientUtils;
 import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.io.FileEvent;
+import com.nazmul.ftp.common.logger.LoggerSingleton;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
 import com.nazmul.ftp.common.protocol.ResponseCode;
 import com.nazmul.ftp.common.util.CommonUtils;
-
-import org.apache.log4j.Logger;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -44,7 +43,7 @@ import javax.swing.text.DefaultCaret;
 
 public class UiWindow extends JFrame implements ActionListener {
 
-  static final Logger LOGGER = Logger.getLogger(UiWindow.class);
+  private static final LoggerSingleton LOGGER = LoggerSingleton.getLoggerInstance();
 
   static final String LOGIN = String.valueOf(ProtocolCode.LOGIN);
 

@@ -3,23 +3,20 @@ package com.nazmul.ftp.server.session;
 import com.nazmul.ftp.common.Data;
 import com.nazmul.ftp.common.DataSocket;
 import com.nazmul.ftp.common.exception.InvalidArgException;
+import com.nazmul.ftp.common.logger.LoggerSingleton;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
 import com.nazmul.ftp.common.protocol.ResponseCode;
 import com.nazmul.ftp.common.util.CommonUtils;
 import com.nazmul.ftp.server.auth.User;
 import com.nazmul.ftp.server.auth.service.UserServiceImpl;
 
-import org.apache.log4j.Logger;
-
 import java.io.IOException;
 
 public class LoginPacket {
 
-  static final Logger LOGGER = Logger.getLogger(LoginPacket.class);
+  private static final LoggerSingleton LOGGER = LoggerSingleton.getLoggerInstance();
 
   private final UserServiceImpl userService = new UserServiceImpl();
-
-  private boolean authenticated;
 
   private User validateUser(String username, String password) throws InvalidArgException {
 

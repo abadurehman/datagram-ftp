@@ -3,17 +3,12 @@ package com.nazmul.ftp.client.util;
 import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.util.CommonUtils;
 
-import org.apache.log4j.Logger;
-
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 public final class ClientUtils {
 
-  public static final Logger LOGGER = Logger.getLogger(ClientUtils.class);
-
   private ClientUtils() {
-
   }
 
   public static String validServerPort(JTextField portField) throws InvalidArgException {

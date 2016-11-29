@@ -4,17 +4,16 @@ import com.nazmul.ftp.common.Data;
 import com.nazmul.ftp.common.DataSocket;
 import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.io.FileEvent;
+import com.nazmul.ftp.common.logger.LoggerSingleton;
 import com.nazmul.ftp.common.protocol.ResponseCode;
 import com.nazmul.ftp.common.util.CommonUtils;
-
-import org.apache.log4j.Logger;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class WRQPacket {
 
-  static final Logger LOGGER = Logger.getLogger(WRQPacket.class);
+  private static final LoggerSingleton LOGGER = LoggerSingleton.getLoggerInstance();
 
   public void writeDataOnServer(Data request, DataSocket socket, String username)
           throws IOException, ClassNotFoundException {
