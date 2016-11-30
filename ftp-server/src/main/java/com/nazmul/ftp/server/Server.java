@@ -55,6 +55,7 @@ public class Server {
     }
   }
 
+  //State pattern or Command
   private static Object requestByCode(short opcode, String message, Data request, DataSocket socket)
           throws IOException, ClassNotFoundException {
 

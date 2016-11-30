@@ -1,6 +1,6 @@
 package com.nazmul.ftp.common.logger;
 
-import org.apache.log4j.*;
+import org.apache.log4j.Logger;
 
 /**
  * Using Singleton design pattern for Logger

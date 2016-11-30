@@ -310,6 +310,7 @@ public class UiWindow extends JFrame implements ActionListener {
     }
   }
 
+  //Observer pattern
   private void onResponseCode(short code) {
 
     switch (code) {
