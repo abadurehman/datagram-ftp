@@ -1,6 +1,9 @@
 package com.nazmul.ftp.client.ui;
 
 import com.nazmul.ftp.client.ClientHelper;
+import com.nazmul.ftp.client.Constants;
+import com.nazmul.ftp.client.state.Authentication;
+import com.nazmul.ftp.client.state.LoggedInState;
 import com.nazmul.ftp.client.util.ClientUtils;
 import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.io.FileEvent;
@@ -45,19 +48,12 @@ public class UiWindow extends JFrame implements ActionListener {
 
   private static final LoggerSingleton LOGGER = LoggerSingleton.INSTANCE;
 
-  static final String LOGIN = String.valueOf(ProtocolCode.LOGIN);
-
-  static final String LOGOUT = String.valueOf(ProtocolCode.LOGOUT);
-
-  static final String WRQ = String.valueOf(ProtocolCode.WRQ);
-
-  static final String DATA = String.valueOf(ProtocolCode.DATA);
-
-  static final String DEFAULT_REMOTE_INPUT = "File name on the server";
-
   private static final long serialVersionUID = 1L;
 
   static boolean loggedin;
+
+  static Authentication auth = new Authentication();
+
 
   /**
    * TOP MENU
@@ -66,21 +62,21 @@ public class UiWindow extends JFrame implements ActionListener {
 
   JLabel serverLabel;
 
-  JTextField serverInput;
+  static JTextField serverInput;
 
   JLabel portLabel;
 
-  JTextField portInput;
+  static JTextField portInput;
 
   JLabel userLabel;
 
-  JTextField userInput;
+  static JTextField userInput;
 
   JLabel passwordLabel;
 
-  JPasswordField passwordInput;
+  static JPasswordField passwordInput;
 
-  JButton loginButton;
+  static JButton loginButton;
 
   /**
    * CENTER CONTAINER
@@ -108,13 +104,13 @@ public class UiWindow extends JFrame implements ActionListener {
   /**
    * RIGHT PANEL
    **/
-  JTextArea logArea;
+  static JTextArea logArea;
 
   JScrollPane scroll;
 
   DefaultCaret caret;
 
-  private ClientHelper helper;
+  private static ClientHelper helper;
 
   public UiWindow() {
 
@@ -188,7 +184,7 @@ public class UiWindow extends JFrame implements ActionListener {
                             .createTitledBorder(
                                     BorderFactory
                                             .createLineBorder(Color.GRAY), "Upload a file"));
-    remoteUploadFileNameInput = new JTextField(DEFAULT_REMOTE_INPUT);
+    remoteUploadFileNameInput = new JTextField(Constants.DEFAULT_REMOTE_INPUT);
 
     //Simulate prompt
     remoteUploadFileNameInput.addFocusListener(new UploadFocusListener());
@@ -211,7 +207,7 @@ public class UiWindow extends JFrame implements ActionListener {
                     .createTitledBorder(
                             BorderFactory
                                     .createLineBorder(Color.GRAY), "Download a file"));
-    remoteDownloadFileNameInput = new JTextField(DEFAULT_REMOTE_INPUT);
+    remoteDownloadFileNameInput = new JTextField(Constants.DEFAULT_REMOTE_INPUT);
 
     //Simulate prompt
     remoteDownloadFileNameInput.addFocusListener(new DownloadFocusListener());
@@ -279,16 +275,9 @@ public class UiWindow extends JFrame implements ActionListener {
   public void actionPerformed(ActionEvent event) {
 
     if (event.getSource() == loginButton) {
-      if ("Connect".equals(loginButton.getText())) {
-        LOGGER.info(ProtocolCode.LOGIN + " Login request sent");
-        login();
+      auth.authenticate();
 
-      } else if ("Disconnect".equals(loginButton.getText()) && loggedin) {
-        LOGGER.info(ProtocolCode.LOGOUT + " Logout request sent");
-        logOut();
-      }
-
-    } else if (event.getSource() == uploadChooser && loggedin) {
+    } else if (event.getSource() == uploadChooser && auth.getState() instanceof LoggedInState) {
       try {
         String command = event.getActionCommand();
         uploadFile(command);
@@ -298,7 +287,7 @@ public class UiWindow extends JFrame implements ActionListener {
         logArea.append("Status: " + inval.getMessage() + "\n");
       }
 
-    } else if (event.getSource() == downloadChooser && loggedin) {
+    } else if (event.getSource() == downloadChooser && auth.getState() instanceof LoggedInState) {
       try {
         String command = event.getActionCommand();
         downloadFile(command);
@@ -311,7 +300,7 @@ public class UiWindow extends JFrame implements ActionListener {
   }
 
   //Observer pattern
-  private void onResponseCode(short code) {
+  public static void onResponseCode(short code) {
 
     switch (code) {
       case ResponseCode.USER_LOGGED_IN_PROCEED:
@@ -365,7 +354,7 @@ public class UiWindow extends JFrame implements ActionListener {
     }
   }
 
-  private void login() {
+  public static void login() {
 
     String responseCode = "";
     try {
@@ -376,7 +365,7 @@ public class UiWindow extends JFrame implements ActionListener {
 
       helper = new ClientHelper(host, port);
       logArea.append("Status: Logging into " + host + "\n");
-      responseCode = helper.authenticate(LOGIN, username, password);
+      responseCode = helper.authenticate(Constants.LOGIN, username, password);
 
     } catch (IOException | InvalidArgException io) {
       logArea.append("Status: " + io.getMessage() + "\n");
@@ -387,7 +376,7 @@ public class UiWindow extends JFrame implements ActionListener {
               .trim()
               .equals(String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED))) {
 
-        loggedin = true;
+//        loggedin = true;
         onResponseCode(Short.parseShort(responseCode.trim()));
 
       } else if (!responseCode.isEmpty()) {
@@ -397,7 +386,7 @@ public class UiWindow extends JFrame implements ActionListener {
 
   }
 
-  private void logOut() {
+  public static void logOut() {
 
     String responseCode = "";
     try {
@@ -407,7 +396,7 @@ public class UiWindow extends JFrame implements ActionListener {
       String password = ClientUtils.validPassword(passwordInput);
 
       logArea.append("Status: Logging out of " + host + "\n");
-      responseCode = helper.sendMessageRequest(LOGOUT + username + password);
+      responseCode = helper.sendMessageRequest(Constants.LOGOUT + username + password);
 
     } catch (IOException | InvalidArgException io) {
       logArea.append("Status: " + io.getMessage() + "\n");
@@ -417,7 +406,7 @@ public class UiWindow extends JFrame implements ActionListener {
               .trim()
               .equals(String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED))) {
 
-        loggedin = false;
+//        loggedin = false;
         onResponseCode(Short.parseShort(responseCode.trim()));
 
         try {
@@ -505,7 +494,7 @@ public class UiWindow extends JFrame implements ActionListener {
 
       // Send request to write data
       logArea.append("Status: Sending a request to write data\n");
-      responseCode = helper.sendMessageRequest(WRQ + username + password);
+      responseCode = helper.sendMessageRequest(Constants.WRQ + username + password);
       // if data write is allowed
       if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
         LOGGER.info(ResponseCode.COMMAND_OKAY + " Ready to upload");
@@ -545,7 +534,7 @@ public class UiWindow extends JFrame implements ActionListener {
 
       if (validDirectory) {
         // Send request to download data
-        responseCode = helper.sendMessageRequest(DATA + username + password);
+        responseCode = helper.sendMessageRequest(Constants.DATA + username + password);
 
         if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
           // send data source
@@ -558,7 +547,7 @@ public class UiWindow extends JFrame implements ActionListener {
 
       } else {
         LOGGER.info(ProtocolCode.ERROR + " Restricted data access requested");
-        responseCode = helper.sendMessageRequest(DATA + username + password + ProtocolCode.ERROR);
+        responseCode = helper.sendMessageRequest(Constants.DATA + username + password + ProtocolCode.ERROR);
       }
 
     } catch (InvalidArgException | IOException inval) {
@@ -576,7 +565,7 @@ public class UiWindow extends JFrame implements ActionListener {
     @Override
     public void focusGained(FocusEvent e) {
 
-      if (remoteUploadFileNameInput.getText().equalsIgnoreCase(DEFAULT_REMOTE_INPUT)) {
+      if (remoteUploadFileNameInput.getText().equalsIgnoreCase(Constants.DEFAULT_REMOTE_INPUT)) {
         remoteUploadFileNameInput.setText("");
       }
     }
@@ -585,7 +574,7 @@ public class UiWindow extends JFrame implements ActionListener {
     public void focusLost(FocusEvent e) {
 
       if ("".equalsIgnoreCase(remoteUploadFileNameInput.getText())) {
-        remoteUploadFileNameInput.setText(DEFAULT_REMOTE_INPUT);
+        remoteUploadFileNameInput.setText(Constants.DEFAULT_REMOTE_INPUT);
       }
     }
   }
@@ -595,7 +584,7 @@ public class UiWindow extends JFrame implements ActionListener {
     @Override
     public void focusGained(FocusEvent e) {
 
-      if (remoteDownloadFileNameInput.getText().equalsIgnoreCase(DEFAULT_REMOTE_INPUT)) {
+      if (remoteDownloadFileNameInput.getText().equalsIgnoreCase(Constants.DEFAULT_REMOTE_INPUT)) {
         remoteDownloadFileNameInput.setText("");
       }
     }
@@ -604,7 +593,7 @@ public class UiWindow extends JFrame implements ActionListener {
     public void focusLost(FocusEvent e) {
 
       if ("".equalsIgnoreCase(remoteDownloadFileNameInput.getText())) {
-        remoteDownloadFileNameInput.setText(DEFAULT_REMOTE_INPUT);
+        remoteDownloadFileNameInput.setText(Constants.DEFAULT_REMOTE_INPUT);
       }
     }
   }
@@ -614,7 +603,7 @@ public class UiWindow extends JFrame implements ActionListener {
     @Override
     public void windowClosing(WindowEvent e) {
 
-      if ("Disconnect".equals(loginButton.getText()) && loggedin) {
+      if ("Disconnect".equals(loginButton.getText()) && auth.getState() instanceof LoggedInState) {
         LOGGER.info("Logout request sent");
         logOut();
       }

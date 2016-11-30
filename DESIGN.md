@@ -6,6 +6,11 @@
 ## Logging (Common)
     Normal Singleton -> Threadsafe -> Enum
 
+## State Pattern (Client)
+    Converted authentication to state pattern
+    When `loginButton` is pressed, Authentication class wrapper delegates to its current state reference.
+    Eliminated if/else case from UiWindow actionPerformed
+
 ## Switch Case Smell
     Command Pattern ??
     State Pattern
