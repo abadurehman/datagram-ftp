@@ -50,8 +50,6 @@ public class UiWindow extends JFrame implements ActionListener {
 
   private static final long serialVersionUID = 1L;
 
-  static boolean loggedin;
-
   static Authentication auth = new Authentication();
 
 
@@ -342,15 +340,15 @@ public class UiWindow extends JFrame implements ActionListener {
         logArea.append("Status: " + code + " File transfer was unsuccessful\n");
         break;
       case ResponseCode.CANT_OPEN_DATA_CONNECTION:
-        LOGGER.info(code + " Cannot open data connnection");
-        logArea.append("Status: " + code + " Cannot open data connnection\n");
+        LOGGER.info(code + " Cannot open data connection");
+        logArea.append("Status: " + code + " Cannot open data connection\n");
         break;
       case ResponseCode.REQUESTED_ACTION_NOT_TAKEN:
         LOGGER.info(code + " Requested action not taken. File unavailable (e.g., file not found, no access)");
         logArea.append("Status: " + code + " Requested action not taken. File unavailable (e.g., file not found, no access).\n");
         break;
       default:
-        LOGGER.info("Runtime exception occured");
+        LOGGER.info("Runtime exception occurred");
     }
   }
 
@@ -376,7 +374,6 @@ public class UiWindow extends JFrame implements ActionListener {
               .trim()
               .equals(String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED))) {
 
-//        loggedin = true;
         onResponseCode(Short.parseShort(responseCode.trim()));
 
       } else if (!responseCode.isEmpty()) {
@@ -391,7 +388,6 @@ public class UiWindow extends JFrame implements ActionListener {
     String responseCode = "";
     try {
       String host = ClientUtils.validHostAddress(serverInput);
-      String port = ClientUtils.validServerPort(portInput);
       String username = ClientUtils.validUsername(userInput);
       String password = ClientUtils.validPassword(passwordInput);
 
@@ -406,7 +402,6 @@ public class UiWindow extends JFrame implements ActionListener {
               .trim()
               .equals(String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED))) {
 
-//        loggedin = false;
         onResponseCode(Short.parseShort(responseCode.trim()));
 
         try {
@@ -487,8 +482,6 @@ public class UiWindow extends JFrame implements ActionListener {
 
     String responseCode = "";
     try {
-      String host = ClientUtils.validHostAddress(serverInput);
-      String port = ClientUtils.validServerPort(portInput);
       String username = ClientUtils.validUsername(userInput);
       String password = ClientUtils.validPassword(passwordInput);
 
@@ -520,8 +513,6 @@ public class UiWindow extends JFrame implements ActionListener {
 
     String responseCode = "";
     try {
-      String host = ClientUtils.validHostAddress(serverInput);
-      String port = ClientUtils.validServerPort(portInput);
       String username = ClientUtils.validUsername(userInput);
       String password = ClientUtils.validPassword(passwordInput);
 
