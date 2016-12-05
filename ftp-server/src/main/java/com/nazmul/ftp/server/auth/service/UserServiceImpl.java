@@ -22,21 +22,25 @@ public class UserServiceImpl implements UserService {
     return users;
   }
 
+  @Override
   public User findByUsername(String username) {
 
-    for (User usr : registeredUsers) {
-      if (usr.getUsername().equalsIgnoreCase(username)) {
-        return usr;
-      }
-    }
-    return null;
+    return registeredUsers
+            .stream()
+            .filter(usr ->
+                    usr.getUsername()
+                            .equals(username))
+            .findFirst()
+            .orElse(null);
   }
 
+  @Override
   public List<User> getAllUsers() {
 
     return registeredUsers;
   }
 
+  @Override
   public User createUser(String username, String password) {
 
     User newUsr = new User(username, password, false);

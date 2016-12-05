@@ -369,14 +369,7 @@ public class UiWindow extends JFrame implements ActionListener {
       logArea.append("Status: " + io.getMessage() + "\n");
     } finally {
       // successfully logged in
-      if (responseCode != null
-              && responseCode
-              .trim()
-              .equals(String.valueOf(ResponseCode.USER_LOGGED_IN_PROCEED))) {
-
-        onResponseCode(Short.parseShort(responseCode.trim()));
-
-      } else if (!responseCode.isEmpty()) {
+      if (responseCode != null && !responseCode.isEmpty()) {
         onResponseCode(Short.parseShort(responseCode.trim()));
       }
     }
@@ -397,21 +390,13 @@ public class UiWindow extends JFrame implements ActionListener {
     } catch (IOException | InvalidArgException io) {
       logArea.append("Status: " + io.getMessage() + "\n");
     } finally {
-      if (responseCode != null
-              && responseCode
-              .trim()
-              .equals(String.valueOf(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED))) {
-
+      if (responseCode != null && !responseCode.isEmpty()) {
         onResponseCode(Short.parseShort(responseCode.trim()));
-
         try {
           helper.done();
         } catch (SocketException e) {
           logArea.append("Status: " + e.getMessage() + "\n");
         }
-
-      } else if (!responseCode.isEmpty()) {
-        onResponseCode(Short.parseShort(responseCode.trim()));
       }
     }
   }

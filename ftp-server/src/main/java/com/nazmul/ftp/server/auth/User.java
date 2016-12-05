@@ -1,6 +1,7 @@
 package com.nazmul.ftp.server.auth;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class User implements Serializable {
 
@@ -60,26 +61,22 @@ public class User implements Serializable {
   }
 
   @Override
-  public int hashCode() {
+  public boolean equals(Object o) {
 
-    int result = username != null ? username.hashCode() : 0;
-    result = 31 * result + (password != null ? password.hashCode() : 0);
-    result = 31 * result + (authenticated ? 1 : 0);
-    return result;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    User user = (User) o;
+    return Objects.equals(username, user.username);
   }
 
   @Override
-  public boolean equals(Object o) {
+  public int hashCode() {
 
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    User user = (User) o;
-
-    if (authenticated != user.authenticated) return false;
-    if (username != null ? !username.equals(user.username) : user.username != null) return false;
-    return password != null ? password.equals(user.password) : user.password == null;
-
+    return Objects.hash(username);
   }
 
   @Override
