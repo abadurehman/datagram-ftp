@@ -405,12 +405,12 @@ public class UiWindow extends JFrame implements ActionListener {
   private void uploadFile(String command) throws InvalidArgException {
     File file = uploadChooser.getSelectedFile();
 
-    hasSelectedAFile(file);
-    doesExist(file);
+    ClientUtils.hasSelectedAFile(file);
+    ClientUtils.doesExist(file);
 
     remoteUploadFileNameInput.setText(file.getName());
 
-    isValidMaxFileSize(file);
+    ClientUtils.isValidMaxFileSize(file);
 
     if (command.equals(JFileChooser.APPROVE_SELECTION)) {
       LOGGER.info("Uploading " + file.getName() + " has started");
@@ -424,12 +424,12 @@ public class UiWindow extends JFrame implements ActionListener {
   private void downloadFile(String command) throws InvalidArgException {
     //check if file is selected
     File file = downloadChooser.getSelectedFile();
-    hasSelectedAFile(file);
-    doesExist(file);
+    ClientUtils.hasSelectedAFile(file);
+    ClientUtils.doesExist(file);
 
     remoteDownloadFileNameInput.setText(file.getName());
 
-    isValidMaxFileSize(file);
+    ClientUtils.isValidMaxFileSize(file);
 
     if (command.equals(JFileChooser.APPROVE_SELECTION)) {
       LOGGER.info("Downloading " + file.getName() + " has started");
@@ -438,34 +438,6 @@ public class UiWindow extends JFrame implements ActionListener {
     } else if (command.equals(JFileChooser.CANCEL_SELECTION)) {
       logArea.append("Status: Downloading cancelled\n");
     }
-  }
-
-  private boolean hasSelectedAFile(File fileSelected) throws InvalidArgException {
-
-    if (fileSelected == null) {
-      displayError("Must select a file to proceed");
-      throw new InvalidArgException("Must select a file to proceed");
-    }
-    return true;
-  }
-
-  private boolean doesExist(File file) throws InvalidArgException {
-    if (!file.exists()) {
-      displayError("Selected file does not exist in the system");
-      throw new InvalidArgException("Selected file does not exist in the system");
-    }
-    return true;
-  }
-
-  private boolean isValidMaxFileSize(File file) throws InvalidArgException {
-    //validate file size does not exceed 64 kilobytes
-    final int MAX_FILE_SIZE = 64;
-    final long FILE_SIZE = file.length() / 1024;
-    if (FILE_SIZE > MAX_FILE_SIZE) {
-      displayError("File size should not exceed " + MAX_FILE_SIZE + "kb");
-      throw new InvalidArgException("File size should not exceed " + MAX_FILE_SIZE + "kb");
-    }
-    return true;
   }
 
   private void sendFileToTheServer() {
