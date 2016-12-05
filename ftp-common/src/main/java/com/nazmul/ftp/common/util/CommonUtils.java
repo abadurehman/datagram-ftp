@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public final class CommonUtils {
 
@@ -61,7 +62,7 @@ public final class CommonUtils {
     }
     try {
       File dstFile = new File(outputFile);
-      FileOutputStream fileOutputStream = new FileOutputStream(dstFile);
+      OutputStream fileOutputStream = new FileOutputStream(dstFile);
       fileOutputStream.write(fileEvent.getFileData());
       fileOutputStream.flush();
       fileOutputStream.close();
@@ -73,9 +74,9 @@ public final class CommonUtils {
   public static FileEvent getFileEvent(String sourceFilePath, String destinationPath) {
 
     FileEvent fileEvent = new FileEvent();
-    String fileName = sourceFilePath.substring(sourceFilePath.lastIndexOf(File.separator) + 1, sourceFilePath.length());
     String path = sourceFilePath.substring(0, sourceFilePath.lastIndexOf(File.separator) + 1);
     fileEvent.setDestinationDirectory(destinationPath);
+    String fileName = sourceFilePath.substring(sourceFilePath.lastIndexOf(File.separator) + 1, sourceFilePath.length());
     fileEvent.setFilename(fileName);
     fileEvent.setSourceDirectory(sourceFilePath);
     File file = new File(sourceFilePath);

@@ -45,5 +45,8 @@ This includes code smells and code principle violations.
 ## requestByCode (Server)
     Switch Case Smell -> Fix by State pattern
 
-## Swing UI
+## Swing UI (Client)
     MVC pattern (Observer + Composite)
+
+## Decorator (Common)
+    File input and output (IO)

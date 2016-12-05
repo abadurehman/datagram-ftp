@@ -3,6 +3,8 @@ package com.nazmul.ftp.client.util;
 import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.util.CommonUtils;
 
+import java.io.File;
+
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
@@ -58,4 +60,31 @@ public final class ClientUtils {
 
     return dirPath.equals(username);
   }
+
+  public static boolean hasSelectedAFile(File fileSelected) throws InvalidArgException {
+
+    if (fileSelected == null) {
+      throw new InvalidArgException("Must select a file to proceed");
+    }
+    return true;
+  }
+
+  public static boolean doesExist(File file) throws InvalidArgException {
+    if (!file.exists()) {
+      throw new InvalidArgException("Selected file does not exist in the system");
+    }
+    return true;
+  }
+
+  public static boolean isValidMaxFileSize(File file) throws InvalidArgException {
+    //validate file size does not exceed 64 kilobytes
+    final int MAX_FILE_SIZE = 64;
+    final long FILE_SIZE = file.length() / 1024;
+    if (FILE_SIZE > MAX_FILE_SIZE) {
+      throw new InvalidArgException("File size should not exceed " + MAX_FILE_SIZE + "kb");
+    }
+    return true;
+  }
+
+
 }

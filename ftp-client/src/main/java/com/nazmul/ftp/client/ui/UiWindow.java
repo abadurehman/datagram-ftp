@@ -298,7 +298,6 @@ public class UiWindow extends JFrame implements ActionListener {
     }
   }
 
-  //Observer pattern
   public static void onResponseCode(short code) {
 
     switch (code) {
