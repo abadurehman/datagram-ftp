@@ -368,6 +368,7 @@ public class UiWindow extends JFrame implements ActionListener {
 
     } catch (IOException | InvalidArgException io) {
       logArea.append("Status: " + io.getMessage() + "\n");
+
     } finally {
       // successfully logged in
       if (responseCode != null && !responseCode.isEmpty()) {
@@ -403,31 +404,19 @@ public class UiWindow extends JFrame implements ActionListener {
   }
 
   private void uploadFile(String command) throws InvalidArgException {
-    //check if file is selected
-    File fileSelected = uploadChooser.getSelectedFile();
-    if (fileSelected == null) {
-      displayError("Must select a file to proceed");
-      throw new InvalidArgException("Must select a file to proceed");
-    }
-    //validate if selected file exists
-    if (!fileSelected.exists()) {
-      displayError("Selected file does not exist in the system");
-      throw new InvalidArgException("Selected file does not exist in the system");
-    }
+    File file = uploadChooser.getSelectedFile();
 
-    remoteUploadFileNameInput.setText(fileSelected.getName());
+    hasSelectedAFile(file);
+    doesExist(file);
 
-    //validate file size does not exceed 64 kilobytes
-    final long fileSizeKb = fileSelected.length() / 1024;
-    final int MAX_FILE_SIZE = 64;
-    if (fileSizeKb > MAX_FILE_SIZE) {
-      displayError("File size should not exceed " + MAX_FILE_SIZE + "kb");
-      throw new InvalidArgException("File size should not exceed " + MAX_FILE_SIZE + "kb");
-    }
+    remoteUploadFileNameInput.setText(file.getName());
+
+    isValidMaxFileSize(file);
 
     if (command.equals(JFileChooser.APPROVE_SELECTION)) {
-      LOGGER.info("Uploading " + fileSelected.getName() + " has started");
+      LOGGER.info("Uploading " + file.getName() + " has started");
       sendFileToTheServer();
+
     } else if (command.equals(JFileChooser.CANCEL_SELECTION)) {
       logArea.append("Status: Uploading cancelled\n");
     }
@@ -435,33 +424,49 @@ public class UiWindow extends JFrame implements ActionListener {
 
   private void downloadFile(String command) throws InvalidArgException {
     //check if file is selected
-    File fileSelected = downloadChooser.getSelectedFile();
+    File file = downloadChooser.getSelectedFile();
+    hasSelectedAFile(file);
+    doesExist(file);
+
+    remoteDownloadFileNameInput.setText(file.getName());
+
+    isValidMaxFileSize(file);
+
+    if (command.equals(JFileChooser.APPROVE_SELECTION)) {
+      LOGGER.info("Downloading " + file.getName() + " has started");
+      downloadFileFromTheServer();
+
+    } else if (command.equals(JFileChooser.CANCEL_SELECTION)) {
+      logArea.append("Status: Downloading cancelled\n");
+    }
+  }
+
+  private boolean hasSelectedAFile(File fileSelected) throws InvalidArgException {
+
     if (fileSelected == null) {
       displayError("Must select a file to proceed");
       throw new InvalidArgException("Must select a file to proceed");
     }
-    //validate if selected file exists
-    if (!fileSelected.exists()) {
-      displayError("Selected file does not exist in the server");
-      throw new InvalidArgException("Selected file does not exist in the server");
+    return true;
+  }
+
+  private boolean doesExist(File file) throws InvalidArgException {
+    if (!file.exists()) {
+      displayError("Selected file does not exist in the system");
+      throw new InvalidArgException("Selected file does not exist in the system");
     }
+    return true;
+  }
 
-    remoteDownloadFileNameInput.setText(fileSelected.getName());
-
+  private boolean isValidMaxFileSize(File file) throws InvalidArgException {
     //validate file size does not exceed 64 kilobytes
-    long fileSizeKb = fileSelected.length() / 1024;
     final int MAX_FILE_SIZE = 64;
-    if (fileSizeKb > MAX_FILE_SIZE) {
+    final long FILE_SIZE = file.length() / 1024;
+    if (FILE_SIZE > MAX_FILE_SIZE) {
       displayError("File size should not exceed " + MAX_FILE_SIZE + "kb");
       throw new InvalidArgException("File size should not exceed " + MAX_FILE_SIZE + "kb");
     }
-
-    if (command.equals(JFileChooser.APPROVE_SELECTION)) {
-      LOGGER.info("Downloading " + fileSelected.getName() + " has started");
-      downloadFileFromTheServer();
-    } else if (command.equals(JFileChooser.CANCEL_SELECTION)) {
-      logArea.append("Status: Downloading cancelled\n");
-    }
+    return true;
   }
 
   private void sendFileToTheServer() {
@@ -575,7 +580,7 @@ public class UiWindow extends JFrame implements ActionListener {
     }
   }
 
-  private class CustomWindowAdapter extends WindowAdapter {
+  private static class CustomWindowAdapter extends WindowAdapter {
 
     @Override
     public void windowClosing(WindowEvent e) {
