@@ -1,4 +1,4 @@
-package com.nazmul.ftp.client;
+package com.nazmul.ftp.client.proxy;
 
 import com.nazmul.ftp.common.DataSocket;
 import com.nazmul.ftp.common.io.FileEvent;
@@ -8,7 +8,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class ClientHelper {
+public class ClientHelperProxy implements ClientHelper {
 
   private final DataSocket mySocket;
 
@@ -16,7 +16,7 @@ public class ClientHelper {
 
   private final int serverPort;
 
-  public ClientHelper(String hostName, String portNum)
+  public ClientHelperProxy(String hostName, String portNum)
           throws SocketException, UnknownHostException {
 
     serverHost = InetAddress.getByName(hostName);
@@ -24,6 +24,7 @@ public class ClientHelper {
     mySocket = new DataSocket();
   }
 
+  @Override
   public String authenticate(String opcode, String user, String pass)
           throws IOException {
 
@@ -31,6 +32,7 @@ public class ClientHelper {
     return mySocket.receiveConfirmationMessage();
   }
 
+  @Override
   public String sendMessageRequest(String message)
           throws IOException {
 
@@ -38,6 +40,7 @@ public class ClientHelper {
     return mySocket.receiveConfirmationMessage();
   }
 
+  @Override
   public String uploadDataPacket(FileEvent event)
           throws IOException {
 
@@ -45,13 +48,15 @@ public class ClientHelper {
     return mySocket.receiveConfirmationMessage();
   }
 
+  @Override
   public String downloadDataPacket(FileEvent event)
           throws IOException {
 
     return uploadDataPacket(event);
   }
 
-  public void done() throws SocketException {
+  @Override
+  public void closeSocket() throws SocketException {
 
     mySocket.close();
   }
