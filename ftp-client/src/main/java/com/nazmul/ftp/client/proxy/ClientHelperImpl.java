@@ -1,6 +1,6 @@
 package com.nazmul.ftp.client.proxy;
 
-import com.nazmul.ftp.common.DataSocket;
+import com.nazmul.ftp.common.DataSocketImpl;
 import com.nazmul.ftp.common.io.FileEvent;
 
 import java.io.IOException;
@@ -8,20 +8,20 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class ClientHelperProxy implements ClientHelper {
+public class ClientHelperImpl implements ClientHelper {
 
-  private final DataSocket mySocket;
+  private final DataSocketImpl mySocket;
 
   private final InetAddress serverHost;
 
   private final int serverPort;
 
-  public ClientHelperProxy(String hostName, String portNum)
+  public ClientHelperImpl(String hostName, String portNum)
           throws SocketException, UnknownHostException {
 
     serverHost = InetAddress.getByName(hostName);
     serverPort = Integer.parseInt(portNum);
-    mySocket = new DataSocket();
+    mySocket = new DataSocketImpl();
   }
 
   @Override

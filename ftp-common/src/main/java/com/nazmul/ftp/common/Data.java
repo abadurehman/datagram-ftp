@@ -1,8 +1,11 @@
 package com.nazmul.ftp.common;
 
+import java.io.Serializable;
 import java.net.InetAddress;
 
-public class Data {
+public class Data implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private InetAddress host;
 

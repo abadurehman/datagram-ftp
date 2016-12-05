@@ -12,15 +12,15 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-public class DataSocket extends DatagramSocket implements IDataSocket {
+public class DataSocketImpl extends DatagramSocket implements DataSocket {
   private static final long serialVersionUID = 1L;
 
   private static final int MAX_LEN = 1024;
 
-  public DataSocket() throws SocketException {
+  public DataSocketImpl() throws SocketException {
   }
 
-  public DataSocket(int portNo) throws SocketException {
+  public DataSocketImpl(int portNo) throws SocketException {
     super(portNo);
   }
 

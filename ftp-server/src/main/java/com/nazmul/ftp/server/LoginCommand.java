@@ -1,7 +1,7 @@
 package com.nazmul.ftp.server;
 
 import com.nazmul.ftp.common.Data;
-import com.nazmul.ftp.common.DataSocket;
+import com.nazmul.ftp.common.DataSocketImpl;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
 import com.nazmul.ftp.server.auth.User;
 import com.nazmul.ftp.server.session.LoginPacket;
@@ -21,7 +21,7 @@ public class LoginCommand implements Command {
   public User execute(short opcode,
                       String message,
                       Data request,
-                      DataSocket socket) throws IOException {
+                      DataSocketImpl socket) throws IOException {
 
     LoginPacket loginPacket = new LoginPacket();
     return loginPacket.processAuthentication(ProtocolCode.LOGIN, message, request, socket);

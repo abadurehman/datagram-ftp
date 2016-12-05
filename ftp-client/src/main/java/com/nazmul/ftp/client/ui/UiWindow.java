@@ -1,6 +1,7 @@
 package com.nazmul.ftp.client.ui;
 
-import com.nazmul.ftp.client.ClientHelper;
+import com.nazmul.ftp.client.proxy.ClientHelper;
+import com.nazmul.ftp.client.proxy.ClientHelperImpl;
 import com.nazmul.ftp.client.Constants;
 import com.nazmul.ftp.client.state.Authentication;
 import com.nazmul.ftp.client.state.LoggedInState;
@@ -361,7 +362,7 @@ public class UiWindow extends JFrame implements ActionListener {
       String username = ClientUtils.validUsername(userInput);
       String password = ClientUtils.validPassword(passwordInput);
 
-      helper = new ClientHelper(host, port);
+      helper = new ClientHelperImpl(host, port);
       logArea.append("Status: Logging into " + host + "\n");
       responseCode = helper.authenticate(Constants.LOGIN, username, password);
 
@@ -393,7 +394,7 @@ public class UiWindow extends JFrame implements ActionListener {
       if (responseCode != null && !responseCode.isEmpty()) {
         onResponseCode(Short.parseShort(responseCode.trim()));
         try {
-          helper.done();
+          helper.closeSocket();
         } catch (SocketException e) {
           logArea.append("Status: " + e.getMessage() + "\n");
         }
@@ -579,7 +580,7 @@ public class UiWindow extends JFrame implements ActionListener {
     @Override
     public void windowClosing(WindowEvent e) {
 
-      if ("Disconnect".equals(loginButton.getText()) && auth.getState() instanceof LoggedInState) {
+      if (auth.getState() instanceof LoggedInState) {
         LOGGER.info("Logout request sent");
         logOut();
       }

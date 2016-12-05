@@ -16,7 +16,7 @@ import java.net.InetAddress;
  * b) Use an extra level of indirection to support distributed, controlled, or intelligent access.
  * c) Add a wrapper and delegation to protect the real component from undue complexity.
  */
-public interface IDataSocket extends Serializable {
+public interface DataSocket extends Serializable {
 
   void sendDataPackets(InetAddress receiverHost, int receiverPort, String message) throws IOException;
   String receiveConfirmationMessage() throws IOException;

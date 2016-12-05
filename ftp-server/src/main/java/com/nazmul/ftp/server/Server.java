@@ -1,6 +1,7 @@
 package com.nazmul.ftp.server;
 
 import com.nazmul.ftp.common.Data;
+import com.nazmul.ftp.common.DataSocketImpl;
 import com.nazmul.ftp.common.DataSocket;
 import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.logger.LoggerSingleton;
@@ -28,7 +29,7 @@ public class Server {
   public static void run(String... args) {
 
     try {
-      DataSocket socket = new DataSocket(DEFAULT_SERVER_PORT);
+      DataSocket socket = new DataSocketImpl(DEFAULT_SERVER_PORT);
       LOGGER.info("FTP server ready");
 
       while (true) {

@@ -1,7 +1,7 @@
 package com.nazmul.ftp.server;
 
 import com.nazmul.ftp.common.Data;
-import com.nazmul.ftp.common.DataSocket;
+import com.nazmul.ftp.common.DataSocketImpl;
 import com.nazmul.ftp.server.auth.User;
 
 import java.io.IOException;
@@ -17,5 +17,5 @@ public interface Command {
   User execute(short opcode,
                String message,
                Data request,
-               DataSocket socket) throws IOException;
+               DataSocketImpl socket) throws IOException;
 }
