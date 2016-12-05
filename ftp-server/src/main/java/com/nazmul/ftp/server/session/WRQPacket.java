@@ -20,11 +20,11 @@ public class WRQPacket {
 
     boolean dataWritten = true;
 
-    FileEvent fileEvent = socket.receiveDataPacketsWithSender();
+    FileEvent fileEvent = socket.receiveFilePacketsWithSender();
     if ("Error".equalsIgnoreCase(fileEvent.getStatus())) {
       dataWritten = false;
       socket
-              .sendMessage(
+              .sendDataPackets(
                       request.getHost(),
                       request.getPort(),
                       String.valueOf(ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN));
@@ -36,7 +36,7 @@ public class WRQPacket {
     } catch (FileNotFoundException file) {
       dataWritten = false;
       socket
-              .sendMessage(
+              .sendDataPackets(
                       request.getHost(),
                       request.getPort(),
                       String.valueOf(ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN));
@@ -46,7 +46,7 @@ public class WRQPacket {
 
     } catch (InvalidArgException e) {
       dataWritten = false;
-      socket.sendMessage(request.getHost(), request.getPort(), e.getMessage());
+      socket.sendDataPackets(request.getHost(), request.getPort(), e.getMessage());
 
       LOGGER.warn(e.getMessage() + " Writing data was unsuccessful");
 
@@ -55,7 +55,7 @@ public class WRQPacket {
       if (dataWritten) {
         LOGGER.info(ResponseCode.CLOSING_DATA_CONNECTION + " Successfully written data");
         socket
-                .sendMessage(
+                .sendDataPackets(
                         request.getHost(),
                         request.getPort(),
                         String.valueOf(ResponseCode.CLOSING_DATA_CONNECTION));

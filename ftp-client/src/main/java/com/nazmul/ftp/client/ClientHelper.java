@@ -27,21 +27,21 @@ public class ClientHelper {
   public String authenticate(String opcode, String user, String pass)
           throws IOException {
 
-    mySocket.login(serverHost, serverPort, opcode, user, pass);
+    mySocket.sendCredentials(serverHost, serverPort, opcode, user, pass);
     return mySocket.receiveConfirmationMessage();
   }
 
   public String sendMessageRequest(String message)
           throws IOException {
 
-    mySocket.sendMessage(serverHost, serverPort, message);
+    mySocket.sendDataPackets(serverHost, serverPort, message);
     return mySocket.receiveConfirmationMessage();
   }
 
   public String uploadDataPacket(FileEvent event)
           throws IOException {
 
-    mySocket.sendPacket(event, serverHost, serverPort);
+    mySocket.sendFilePackets(event, serverHost, serverPort);
     return mySocket.receiveConfirmationMessage();
   }
 

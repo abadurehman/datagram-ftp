@@ -32,7 +32,7 @@ public class Server {
       LOGGER.info("FTP server ready");
 
       while (true) {
-        Data request = socket.receivePacketsWithSender();
+        Data request = socket.receiveDataPacketsWithSender();
         String message = request.getMessage();
         short opcode = CommonUtils.extractOpcode(message);
 
@@ -43,7 +43,7 @@ public class Server {
           loggedInUser = loginPacket.processAuthentication(opcode, message, request, socket);
         } else {
           socket
-                  .sendMessage(
+                  .sendDataPackets(
                           request.getHost(),
                           request.getPort(),
                           String.valueOf(ResponseCode.CANT_OPEN_DATA_CONNECTION));
@@ -70,7 +70,7 @@ public class Server {
         LOGGER.info(ProtocolCode.WRQ + " Upload handshake received");
         //write request command is received and response sent to client is okay
         socket
-                .sendMessage(
+                .sendDataPackets(
                         request.getHost(),
                         request.getPort(),
                         String.valueOf(ResponseCode.COMMAND_OKAY));
@@ -86,7 +86,7 @@ public class Server {
         if (request.getMessage().trim().endsWith(String.valueOf(ProtocolCode.ERROR))) {
           LOGGER.warn(ProtocolCode.ERROR + " Restricted data access");
           socket
-                  .sendMessage(
+                  .sendDataPackets(
                           request.getHost(),
                           request.getPort(),
                           String.valueOf(ResponseCode.REQUESTED_ACTION_NOT_TAKEN));
@@ -96,7 +96,7 @@ public class Server {
           LOGGER.info(ProtocolCode.DATA + " Download handshake received");
           //download data request command is received and response sent to client is okay
           socket
-                  .sendMessage(
+                  .sendDataPackets(
                           request.getHost(),
                           request.getPort(),
                           String.valueOf(ResponseCode.COMMAND_OKAY));

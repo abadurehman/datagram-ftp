@@ -73,7 +73,7 @@ public class FileEvent implements Serializable {
     return fileData;
   }
 
-  public void setFileData(byte[] fileData) {
+  public void setFileData(byte... fileData) {
 
     this.fileData = fileData;
   }
