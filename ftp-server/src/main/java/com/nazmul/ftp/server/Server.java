@@ -7,9 +7,14 @@ import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.logger.LoggerSingleton;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
 import com.nazmul.ftp.common.util.CommonUtils;
-import com.nazmul.ftp.server.auth.User;
-import com.nazmul.ftp.server.session.LoginPacket;
-import com.nazmul.ftp.server.session.WRQPacket;
+import com.nazmul.ftp.server.command.Authentication;
+import com.nazmul.ftp.server.command.FileDownloadCommand;
+import com.nazmul.ftp.server.command.FileTransfer;
+import com.nazmul.ftp.server.command.FileUploadCommand;
+import com.nazmul.ftp.server.command.LoginCommand;
+import com.nazmul.ftp.server.command.LogoutCommand;
+import com.nazmul.ftp.server.command.Operation;
+import com.nazmul.ftp.server.session.DataPacket;
 
 import java.io.IOException;
 
@@ -17,13 +22,12 @@ public class Server {
 
   private static final LoggerSingleton LOGGER = LoggerSingleton.INSTANCE;
 
-  static User loggedInUser = new User();
+  private Operation operation;
+  private Authentication auth;
+  private int runCount = 0;
+  private FileTransfer fileTransfer;
 
-  private static LoginPacket loginPacket;
-
-  private static WRQPacket writePacket;
-
-  public static void run(String... args) {
+  public void run(String... args) {
 
     try {
 
@@ -36,15 +40,17 @@ public class Server {
         String message = request.getMessage();
         short opcode = CommonUtils.extractOpcode(message);
 
-        if (loggedInUser != null && loggedInUser.isAuthenticated()) {
-          loginPacket = new LoginPacket(opcode, message, request, socket);
-          writePacket = new WRQPacket(request, socket, loggedInUser.getUsername());
-          loggedInUser = requestByCode(opcode);
+        operation = new Operation();
+        DataPacket dataPacket = new DataPacket(opcode, message, request, socket);
 
-        } else if (loggedInUser != null && !loggedInUser.isAuthenticated()) {
-          loginPacket = new LoginPacket(opcode, message, request, socket);
-          loggedInUser = requestByCode(opcode);
+        if (runCount == 0 ) {
+          auth = new Authentication(dataPacket);
+          runCount++;
+        } else if (auth.getUser().isAuthenticated()) {
+          fileTransfer = new FileTransfer(dataPacket, auth.getUser().getUsername());
         }
+
+        requestByCode(opcode);
       }
 
     } catch (IOException | InvalidArgException | ClassNotFoundException e) {
@@ -52,33 +58,36 @@ public class Server {
     }
   }
 
-  //State pattern or Command
-  private static User requestByCode(short opcode)
-          throws IOException, ClassNotFoundException {
+  private void requestByCode(short opcode) throws IOException, ClassNotFoundException {
 
     switch (opcode) {
       case ProtocolCode.LOGIN:
-        return loginPacket.processAuthentication();
+        LoginCommand login = new LoginCommand(auth);
+        operation.setOpcode(login);
+        operation.operationCodeRequested();
+        break;
 
       case ProtocolCode.LOGOUT:
-        return loginPacket.processAuthentication();
+        LogoutCommand logout = new LogoutCommand(auth);
+        operation.setOpcode(logout);
+        operation.operationCodeRequested();
+        runCount = 0;
+        break;
 
       case ProtocolCode.WRQ:
-        if (writePacket.isValidRequest()) {
-          LOGGER.info(ProtocolCode.WRQ + " Data upload has started");
-          writePacket.writeDataOnServer();
-        }
-        return loggedInUser;
+        FileUploadCommand fileUpload = new FileUploadCommand(fileTransfer);
+        operation.setOpcode(fileUpload);
+        operation.operationCodeRequested();
+        break;
 
       case ProtocolCode.DATA:
-        if (writePacket.isValidRequest()) {
-          LOGGER.info(ProtocolCode.DATA + " Data download has started");
-          writePacket.writeDataOnClient();
-        }
-        return loggedInUser;
+        FileDownloadCommand fileDownload = new FileDownloadCommand(fileTransfer);
+        operation.setOpcode(fileDownload);
+        operation.operationCodeRequested();
+        break;
 
       default:
-        return loggedInUser;
+        LOGGER.info("Invalid operation code");
     }
   }
 }

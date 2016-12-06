@@ -29,21 +29,18 @@ My aim is to achieve at least 8 design patterns.
     * A virtual proxy is a placeholder for "expensive to create" objects.
       The real object is only created when a client first requests/accesses the object.
 
+## 4. Command Pattern (Server)
+      Created commmand pattern to make the client requests simpler
+      Code is more easier to read now
+      Code is still not completely following the OCP
+      Need to remove the switch case smell by Strategy/State pattern
 
 # Possible Implementation
 Here are the possible design patterns I could implement.
 This includes code smells and code principle violations.
 
-## Switch Case Smell
-    Command Pattern ??
-    State Pattern
-
-## onResponseCode (Client)
-    Observer Pattern ??
-    OR State Pattern
-
 ## requestByCode (Server)
-    Switch Case Smell -> Fix by State pattern
+    Switch Case Smell -> Fix by Strategy and Command pattern
 
 ## Swing UI (Client)
     MVC pattern (Observer + Composite)
