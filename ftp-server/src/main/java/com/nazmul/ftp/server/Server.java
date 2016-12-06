@@ -14,7 +14,7 @@ import com.nazmul.ftp.server.command.FileUploadCommand;
 import com.nazmul.ftp.server.command.LoginCommand;
 import com.nazmul.ftp.server.command.LogoutCommand;
 import com.nazmul.ftp.server.command.Operation;
-import com.nazmul.ftp.server.session.DataPacket;
+import com.nazmul.ftp.server.model.DataPacket;
 
 import java.io.IOException;
 

@@ -7,7 +7,7 @@ import com.nazmul.ftp.common.protocol.ResponseCode;
 import com.nazmul.ftp.server.auth.User;
 import com.nazmul.ftp.server.auth.service.UserService;
 import com.nazmul.ftp.server.auth.service.UserServiceImpl;
-import com.nazmul.ftp.server.session.DataPacket;
+import com.nazmul.ftp.server.model.DataPacket;
 
 import java.io.IOException;
 

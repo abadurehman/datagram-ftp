@@ -1,4 +1,4 @@
-package com.nazmul.ftp.server.session;
+package com.nazmul.ftp.server.model;
 
 import com.nazmul.ftp.common.Data;
 import com.nazmul.ftp.common.DataSocket;

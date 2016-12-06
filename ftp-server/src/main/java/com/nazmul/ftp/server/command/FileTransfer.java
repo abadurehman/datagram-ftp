@@ -6,7 +6,7 @@ import com.nazmul.ftp.common.logger.LoggerSingleton;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
 import com.nazmul.ftp.common.protocol.ResponseCode;
 import com.nazmul.ftp.common.util.CommonUtils;
-import com.nazmul.ftp.server.session.DataPacket;
+import com.nazmul.ftp.server.model.DataPacket;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
