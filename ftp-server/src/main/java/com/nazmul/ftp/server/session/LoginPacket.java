@@ -16,11 +16,72 @@ public class LoginPacket {
 
   private static final LoggerSingleton LOGGER = LoggerSingleton.INSTANCE;
 
-  private final UserServiceImpl userService = new UserServiceImpl();
+
+  private short opcode;
+
+  private String message;
+
+  private Data request;
+
+  private DataSocket socket;
+
+  public LoginPacket(short opcode, String message, Data request, DataSocket socket) {
+
+    this.opcode = opcode;
+    this.message = message;
+    this.request = request;
+    this.socket = socket;
+  }
+
+  public LoginPacket() {
+
+  }
+
+  public short getOpcode() {
+
+    return opcode;
+  }
+
+  public void setOpcode(short opcode) {
+
+    this.opcode = opcode;
+  }
+
+  public String getMessage() {
+
+    return message;
+  }
+
+  public void setMessage(String message) {
+
+    this.message = message;
+  }
+
+  public Data getRequest() {
+
+    return request;
+  }
+
+  public void setRequest(Data request) {
+
+    this.request = request;
+  }
+
+  public DataSocket getSocket() {
+
+    return socket;
+  }
+
+  public void setSocket(DataSocket socket) {
+
+    this.socket = socket;
+  }
 
   private User validateUser(String username, String password) throws InvalidArgException {
 
+    final UserServiceImpl userService = new UserServiceImpl();
     User checkUser = userService.findByUsername(username);
+
     if (checkUser == null) {
       throw new InvalidArgException(String.valueOf(ResponseCode.INVALID_USERNAME_OR_PASSWORD));
     }
@@ -34,7 +95,7 @@ public class LoginPacket {
     throw new InvalidArgException(String.valueOf(ResponseCode.USERNAME_OK_NEED_PASSWORD));
   }
 
-  public User processAuthentication(short opcode, String message, Data request, DataSocket dataSocket)
+  public User processAuthentication()
           throws IOException {
 
     User loggedInUser = new User();
@@ -45,7 +106,7 @@ public class LoginPacket {
       LOGGER.info(ProtocolCode.LOGIN + " Authentication request received");
       try {
         loggedInUser = validateUser(username, password);
-        dataSocket
+        socket
                 .sendDataPackets(
                         request.getHost(),
                         request.getPort(),
@@ -53,7 +114,7 @@ public class LoginPacket {
         LOGGER.info(ResponseCode.USER_LOGGED_IN_PROCEED + " Authenticated");
 
       } catch (InvalidArgException exc) {
-        dataSocket.sendDataPackets(request.getHost(), request.getPort(), exc.getMessage());
+        socket.sendDataPackets(request.getHost(), request.getPort(), exc.getMessage());
         LOGGER.info(exc.getMessage() + " Authentication unsuccessful");
       }
       return loggedInUser;
@@ -63,7 +124,7 @@ public class LoginPacket {
       LOGGER.info(ProtocolCode.LOGOUT + " Logout request received");
       try {
         loggedInUser = validateUser(username, password);
-        dataSocket
+        socket
                 .sendDataPackets(
                         request.getHost(),
                         request.getPort(),
@@ -72,13 +133,13 @@ public class LoginPacket {
         LOGGER.info(ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED + " User logged out");
 
       } catch (InvalidArgException exc) {
-        dataSocket.sendDataPackets(request.getHost(), request.getPort(), exc.getMessage());
+        socket.sendDataPackets(request.getHost(), request.getPort(), exc.getMessage());
         LOGGER.debug(exc.getMessage() + " Logout was unsuccessful");
       }
       return loggedInUser;
     }
     //if invalid opcode was received
-    dataSocket
+    socket
             .sendDataPackets(
                     request.getHost(),
                     request.getPort(),

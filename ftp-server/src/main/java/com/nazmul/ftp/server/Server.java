@@ -1,12 +1,11 @@
 package com.nazmul.ftp.server;
 
 import com.nazmul.ftp.common.Data;
-import com.nazmul.ftp.common.DataSocketImpl;
 import com.nazmul.ftp.common.DataSocket;
+import com.nazmul.ftp.common.DataSocketImpl;
 import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.logger.LoggerSingleton;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
-import com.nazmul.ftp.common.protocol.ResponseCode;
 import com.nazmul.ftp.common.util.CommonUtils;
 import com.nazmul.ftp.server.auth.User;
 import com.nazmul.ftp.server.session.LoginPacket;
@@ -18,17 +17,17 @@ public class Server {
 
   private static final LoggerSingleton LOGGER = LoggerSingleton.INSTANCE;
 
-  static LoginPacket loginPacket = new LoginPacket();
-
-  static WRQPacket writePacket = new WRQPacket();
-
   static User loggedInUser = new User();
 
-  static int DEFAULT_SERVER_PORT = 3000;
+  private static LoginPacket loginPacket;
+
+  private static WRQPacket writePacket;
 
   public static void run(String... args) {
 
     try {
+
+      final int DEFAULT_SERVER_PORT = 3000;
       DataSocket socket = new DataSocketImpl(DEFAULT_SERVER_PORT);
       LOGGER.info("FTP server ready");
 
@@ -38,16 +37,13 @@ public class Server {
         short opcode = CommonUtils.extractOpcode(message);
 
         if (loggedInUser != null && loggedInUser.isAuthenticated()) {
-          loggedInUser = (User) requestByCode(opcode, message, request, socket);
+          loginPacket = new LoginPacket(opcode, message, request, socket);
+          writePacket = new WRQPacket(request, socket, loggedInUser.getUsername());
+          loggedInUser = requestByCode(opcode);
 
         } else if (loggedInUser != null && !loggedInUser.isAuthenticated()) {
-          loggedInUser = loginPacket.processAuthentication(opcode, message, request, socket);
-        } else {
-          socket
-                  .sendDataPackets(
-                          request.getHost(),
-                          request.getPort(),
-                          String.valueOf(ResponseCode.CANT_OPEN_DATA_CONNECTION));
+          loginPacket = new LoginPacket(opcode, message, request, socket);
+          loggedInUser = requestByCode(opcode);
         }
       }
 
@@ -57,54 +53,27 @@ public class Server {
   }
 
   //State pattern or Command
-  private static Object requestByCode(short opcode, String message, Data request, DataSocket socket)
+  private static User requestByCode(short opcode)
           throws IOException, ClassNotFoundException {
 
     switch (opcode) {
       case ProtocolCode.LOGIN:
-        return loginPacket.processAuthentication(ProtocolCode.LOGIN, message, request, socket);
+        return loginPacket.processAuthentication();
 
       case ProtocolCode.LOGOUT:
-        return loginPacket.processAuthentication(ProtocolCode.LOGOUT, message, request, socket);
+        return loginPacket.processAuthentication();
 
       case ProtocolCode.WRQ:
-        LOGGER.info(ProtocolCode.WRQ + " Upload handshake received");
-        //write request command is received and response sent to client is okay
-        socket
-                .sendDataPackets(
-                        request.getHost(),
-                        request.getPort(),
-                        String.valueOf(ResponseCode.COMMAND_OKAY));
-        LOGGER.info(ProtocolCode.ACK + " Acknowledgement sent");
-
-        LOGGER.info(ProtocolCode.WRQ + " Data upload has started");
-        //now write data on the server
-        writePacket.writeDataOnServer(request, socket, loggedInUser.getUsername());
+        if (writePacket.isValidRequest()) {
+          LOGGER.info(ProtocolCode.WRQ + " Data upload has started");
+          writePacket.writeDataOnServer();
+        }
         return loggedInUser;
 
       case ProtocolCode.DATA:
-        //now send data to the client
-        if (request.getMessage().trim().endsWith(String.valueOf(ProtocolCode.ERROR))) {
-          LOGGER.warn(ProtocolCode.ERROR + " Restricted data access");
-          socket
-                  .sendDataPackets(
-                          request.getHost(),
-                          request.getPort(),
-                          String.valueOf(ResponseCode.REQUESTED_ACTION_NOT_TAKEN));
-          LOGGER.warn(ResponseCode.REQUESTED_ACTION_NOT_TAKEN + " Requested action not taken");
-
-        } else {
-          LOGGER.info(ProtocolCode.DATA + " Download handshake received");
-          //download data request command is received and response sent to client is okay
-          socket
-                  .sendDataPackets(
-                          request.getHost(),
-                          request.getPort(),
-                          String.valueOf(ResponseCode.COMMAND_OKAY));
-          LOGGER.info(ProtocolCode.ACK + " Acknowledgement sent");
-
-          LOGGER.info(ProtocolCode.DATA + " Data upload has started");
-          writePacket.writeDataOnClient(request, socket, loggedInUser.getUsername());
+        if (writePacket.isValidRequest()) {
+          LOGGER.info(ProtocolCode.DATA + " Data download has started");
+          writePacket.writeDataOnClient();
         }
         return loggedInUser;
 
