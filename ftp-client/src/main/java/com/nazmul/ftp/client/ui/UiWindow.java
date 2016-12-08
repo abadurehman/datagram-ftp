@@ -51,17 +51,11 @@ public class UiWindow extends JFrame implements ActionListener {
   private static final long serialVersionUID = 1L;
 
   public static JTextField serverInput;
-
   public static JTextField portInput;
-
   public static JTextField userInput;
-
   public static JPasswordField passwordInput;
-
   public static JTextArea logArea;
-
   static Authentication auth = new Authentication();
-
   static JButton loginButton;
 
   private static ClientHelper helper;
@@ -385,6 +379,7 @@ public class UiWindow extends JFrame implements ActionListener {
     context.setUploadChooser(uploadChooser);
     context.setDownloadChooser(downloadChooser);
     context.setLogArea(logArea);
+    context.setHelper(helper);
   }
 
   private void setAuthenticationContext(Authentication auth) {

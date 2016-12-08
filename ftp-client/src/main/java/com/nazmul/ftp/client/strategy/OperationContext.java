@@ -67,13 +67,9 @@ public class OperationContext {
     this.logArea = logArea;
   }
 
-  public ClientHelper getHelper()
-          throws InvalidArgException, SocketException, UnknownHostException {
-    String host = ClientUtils.validHostAddress(serverInput);
-    String port = ClientUtils.validServerPort(portInput);
+  public void setHelper(ClientHelper helper) {
 
-    helper = new ClientHelperImpl(host, port);
-    return helper;
+    this.helper = helper;
   }
 
   public void executeOperation(){

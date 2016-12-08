@@ -2,7 +2,6 @@ package com.nazmul.ftp.client.strategy;
 
 import com.nazmul.ftp.client.Constants;
 import com.nazmul.ftp.client.proxy.ClientHelper;
-import com.nazmul.ftp.client.proxy.ClientHelperImpl;
 import com.nazmul.ftp.client.ui.UiWindow;
 import com.nazmul.ftp.client.util.ClientUtils;
 import com.nazmul.ftp.common.exception.InvalidArgException;
@@ -38,12 +37,8 @@ public class DownloadOperation implements Strategy {
 
     String responseCode = "";
     try {
-      String host = ClientUtils.validHostAddress(serverInput);
-      String port = ClientUtils.validServerPort(portInput);
       String username = ClientUtils.validUsername(userInput);
       String password = ClientUtils.validPassword(passwordInput);
-
-      helper = new ClientHelperImpl(host, port);
 
       String curDirName = downloadChooser.getCurrentDirectory().getName();
       String sysUsername = CommonUtils.extractUsername(username);
