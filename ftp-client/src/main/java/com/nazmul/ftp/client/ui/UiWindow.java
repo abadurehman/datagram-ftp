@@ -50,43 +50,29 @@ public class UiWindow extends JFrame implements ActionListener {
 
   private static final long serialVersionUID = 1L;
 
-  public static JTextField serverInput;
-  public static JTextField portInput;
-  public static JTextField userInput;
-  public static JPasswordField passwordInput;
-  public static JTextArea logArea;
-  static Authentication auth = new Authentication();
-  static JButton loginButton;
+  private static JTextField serverInput;
+
+  private static JTextField portInput;
+
+  private static JTextField userInput;
+
+  private static JPasswordField passwordInput;
+
+  private static JTextArea logArea;
+
+  private static JButton loginButton;
 
   private static ClientHelper helper;
 
-  JPanel top;
+  private final Authentication auth = new Authentication();
 
-  JLabel serverLabel;
+  private JTextField remoteUploadFileNameInput;
 
-  JLabel portLabel;
+  private JFileChooser uploadChooser;
 
-  JLabel userLabel;
+  private JTextField remoteDownloadFileNameInput;
 
-  JLabel passwordLabel;
-
-  JPanel center;
-
-  JPanel upload;
-
-  JTextField remoteUploadFileNameInput;
-
-  JFileChooser uploadChooser;
-
-  JPanel download;
-
-  JTextField remoteDownloadFileNameInput;
-
-  JFileChooser downloadChooser;
-
-  JScrollPane scroll;
-
-  DefaultCaret caret;
+  private JFileChooser downloadChooser;
 
   public UiWindow() {
 
@@ -165,25 +151,25 @@ public class UiWindow extends JFrame implements ActionListener {
   private void drawUI() {
 
     /** Server informations **/
-    top = new JPanel();
+    JPanel top = new JPanel();
     top.setLayout(new FlowLayout(FlowLayout.LEADING, 5, 15));
     top.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
-    serverLabel = new JLabel("Host: ");
+    JLabel serverLabel = new JLabel("Host: ");
     serverInput = new JTextField("localhost");
     serverInput.setPreferredSize(new Dimension(120, 20));
     serverInput.setEnabled(false);
 
-    portLabel = new JLabel("Port: ");
+    JLabel portLabel = new JLabel("Port: ");
     portInput = new JTextField("3000");
     portInput.setPreferredSize(new Dimension(50, 20));
     portInput.setEnabled(false);
 
-    userLabel = new JLabel("Username : ");
+    JLabel userLabel = new JLabel("Username : ");
     userInput = new JTextField("!demo@");
     userInput.setPreferredSize(new Dimension(120, 20));
 
-    passwordLabel = new JLabel("Password : ");
+    JLabel passwordLabel = new JLabel("Password : ");
     passwordInput = new JPasswordField("demo!");
     passwordInput.setPreferredSize(new Dimension(100, 20));
 
@@ -204,11 +190,11 @@ public class UiWindow extends JFrame implements ActionListener {
     top.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 
     /** Main content definition **/
-    center = new JPanel();
+    JPanel center = new JPanel();
     center.setLayout(new GridLayout(1, 2));
 
     /** Setting sending components **/
-    upload = new JPanel();
+    JPanel upload = new JPanel();
     upload.setLayout(new BorderLayout());
     upload.setBorder(
             BorderFactory
@@ -231,7 +217,7 @@ public class UiWindow extends JFrame implements ActionListener {
     upload.add(sendContent, BorderLayout.CENTER);
 
     /** Setting reception components */
-    download = new JPanel();
+    JPanel download = new JPanel();
     download.setLayout(new BorderLayout());
     download.setBorder(
             BorderFactory
@@ -267,13 +253,13 @@ public class UiWindow extends JFrame implements ActionListener {
     logArea.setDisabledTextColor(Color.GREEN);
     logArea.setToolTipText("System logs");
 
-    scroll = new JScrollPane(
+    JScrollPane scroll = new JScrollPane(
             logArea,
             ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
             ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     scroll.setPreferredSize(new Dimension(getWidth(), 150));
 
-    caret = (DefaultCaret) logArea.getCaret();
+    DefaultCaret caret = (DefaultCaret) logArea.getCaret();
     caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
     /** Adding all **/
@@ -404,7 +390,7 @@ public class UiWindow extends JFrame implements ActionListener {
     }
   }
 
-  private static class CustomWindowAdapter extends WindowAdapter {
+  private class CustomWindowAdapter extends WindowAdapter {
 
     @Override
     public void windowClosing(WindowEvent e) {
