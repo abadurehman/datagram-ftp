@@ -5,6 +5,9 @@ import com.nazmul.ftp.client.proxy.ClientHelperImpl;
 import com.nazmul.ftp.client.Constants;
 import com.nazmul.ftp.client.state.Authentication;
 import com.nazmul.ftp.client.state.LoggedInState;
+import com.nazmul.ftp.client.strategy.DownloadOperation;
+import com.nazmul.ftp.client.strategy.UploadOperation;
+import com.nazmul.ftp.client.strategy.OperationContext;
 import com.nazmul.ftp.client.util.ClientUtils;
 import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.io.FileEvent;
@@ -414,7 +417,9 @@ public class UiWindow extends JFrame implements ActionListener {
 
     if (command.equals(JFileChooser.APPROVE_SELECTION)) {
       LOGGER.info("Uploading " + file.getName() + " has started");
-      sendFileToTheServer();
+      OperationContext context = new OperationContext(new UploadOperation());
+      setOperationContext(context);
+      context.executeOperation();
 
     } else if (command.equals(JFileChooser.CANCEL_SELECTION)) {
       logArea.append("Status: Uploading cancelled\n");
@@ -433,84 +438,24 @@ public class UiWindow extends JFrame implements ActionListener {
 
     if (command.equals(JFileChooser.APPROVE_SELECTION)) {
       LOGGER.info("Downloading " + file.getName() + " has started");
-      downloadFileFromTheServer();
+      OperationContext context = new OperationContext(new DownloadOperation());
+      setOperationContext(context);
+      context.executeOperation();
 
     } else if (command.equals(JFileChooser.CANCEL_SELECTION)) {
       logArea.append("Status: Downloading cancelled\n");
     }
   }
 
-  private void sendFileToTheServer() {
-
-    String responseCode = "";
-    try {
-      String username = ClientUtils.validUsername(userInput);
-      String password = ClientUtils.validPassword(passwordInput);
-
-      // Send request to write data
-      logArea.append("Status: Sending a request to write data\n");
-      responseCode = helper.sendMessageRequest(Constants.WRQ + username + password);
-      // if data write is allowed
-      if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
-        LOGGER.info(ResponseCode.COMMAND_OKAY + " Ready to upload");
-        // send data
-        String sourcePath = uploadChooser.getSelectedFile().getAbsolutePath();
-        String destinationPath = downloadChooser.getCurrentDirectory().getAbsolutePath();
-        FileEvent event = CommonUtils.getFileEvent(sourcePath, destinationPath);
-        logArea.append("Status: File upload has started\n");
-        responseCode = helper.uploadDataPacket(event);
-      }
-
-    } catch (InvalidArgException | IOException inval) {
-      logArea.append("Status: " + inval.getMessage() + "\n");
-    } finally {
-      // if file was successfully uploaded
-      if (responseCode != null && !responseCode.isEmpty()) {
-        onResponseCode(Short.parseShort(responseCode.trim()));
-      }
-    }
-  }
-
-  private void downloadFileFromTheServer() {
-
-    String responseCode = "";
-    try {
-      String username = ClientUtils.validUsername(userInput);
-      String password = ClientUtils.validPassword(passwordInput);
-
-
-      String curDirName = downloadChooser.getCurrentDirectory().getName();
-      String sysUsername = CommonUtils.extractUsername(username);
-      boolean validDirectory = ClientUtils.isValidDirectory(curDirName, sysUsername);
-
-      logArea.append("Status: Sending a request to download data\n");
-
-      if (validDirectory) {
-        // Send request to download data
-        responseCode = helper.sendMessageRequest(Constants.DATA + username + password);
-
-        if (responseCode.trim().equals(String.valueOf(ResponseCode.COMMAND_OKAY))) {
-          // send data source
-          String sourcePath = downloadChooser.getSelectedFile().getAbsolutePath();
-          String destinationPath = uploadChooser.getCurrentDirectory().getAbsolutePath();
-          FileEvent event = CommonUtils.getFileEvent(sourcePath, destinationPath);
-          logArea.append("Status: File download has started\n");
-          responseCode = helper.downloadDataPacket(event);
-        }
-
-      } else {
-        LOGGER.info(ProtocolCode.ERROR + " Restricted data access requested");
-        responseCode = helper.sendMessageRequest(Constants.DATA + username + password + ProtocolCode.ERROR);
-      }
-
-    } catch (InvalidArgException | IOException inval) {
-      logArea.append("Status: " + inval.getMessage() + "\n");
-    } finally {
-      // if file was successfully downloaded
-      if (responseCode != null && !responseCode.isEmpty()) {
-        onResponseCode(Short.parseShort(responseCode.trim()));
-      }
-    }
+  private void setOperationContext(OperationContext context) {
+    context.setServerInput(serverInput);
+    context.setPortInput(portInput);
+    context.setUserInput(userInput);
+    context.setPasswordInput(passwordInput);
+    context.setUploadChooser(uploadChooser);
+    context.setDownloadChooser(downloadChooser);
+    context.setLogArea(logArea);
+    context.setHelper(helper);
   }
 
   private class UploadFocusListener implements FocusListener {
