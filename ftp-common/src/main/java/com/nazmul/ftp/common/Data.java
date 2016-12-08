@@ -14,6 +14,7 @@ public class Data implements Serializable {
   private String message;
 
   public Data() {
+    //needed for serialization
   }
 
   public Data(String message) {

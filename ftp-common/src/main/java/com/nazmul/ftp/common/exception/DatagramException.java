@@ -5,7 +5,7 @@ public class DatagramException extends Exception {
   private static final long serialVersionUID = 1L;
 
   public DatagramException() {
-
+    //needed for serialization
   }
 
   public DatagramException(String message) {

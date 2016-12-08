@@ -18,6 +18,7 @@ public class DataSocketImpl extends DatagramSocket implements DataSocket {
   private static final int MAX_LEN = 1024;
 
   public DataSocketImpl() throws SocketException {
+    //needed for serialization
   }
 
   public DataSocketImpl(int portNo) throws SocketException {

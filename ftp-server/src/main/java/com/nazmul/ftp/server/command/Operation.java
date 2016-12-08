@@ -10,7 +10,7 @@ public class Operation {
   Command opcode;
 
   public Operation() {
-
+    //needed
   }
 
   public void setOpcode(Command command) {

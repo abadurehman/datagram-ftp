@@ -14,7 +14,7 @@ public class User implements Serializable {
   private boolean authenticated;
 
   public User() {
-
+    //needed for serialization
   }
 
   public User(String username, String password) {
@@ -82,9 +82,8 @@ public class User implements Serializable {
   @Override
   public String toString() {
 
-    final StringBuffer sb = new StringBuffer("User{");
+    final StringBuilder sb = new StringBuilder("User{");
     sb.append("username='").append(username).append('\'');
-    sb.append(", password='").append(password).append('\'');
     sb.append(", authenticated=").append(authenticated);
     sb.append('}');
     return sb.toString();

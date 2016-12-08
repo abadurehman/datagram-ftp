@@ -15,7 +15,7 @@ public class UserServiceImpl implements UserService {
 
   private static List<User> populateUsers() {
 
-    List<User> users = new CopyOnWriteArrayList<User>();
+    List<User> users = new CopyOnWriteArrayList<>();
     users.add(new User("admin", "admin", false));
     users.add(new User("user", "user", false));
     users.add(new User("demo", "demo", false));

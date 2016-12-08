@@ -6,6 +6,9 @@ import javax.swing.SwingUtilities;
 
 public class ClientApplication {
 
+  private ClientApplication() {
+  }
+
   public static void main(String... args) {
 
     SwingUtilities.invokeLater(() -> new UiWindow().setVisible(true));

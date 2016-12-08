@@ -31,11 +31,11 @@ public final class ClientUtils {
 
   public static String validPassword(JPasswordField passwordField) throws InvalidArgException {
 
-    if (passwordField.getText().isEmpty()) {
+    if (passwordField.getPassword().length == 0) {
       return "!";
     }
 
-    String password = passwordField.getText();
+    String password = String.copyValueOf(passwordField.getPassword());
     if (CommonUtils.fieldEndsWith(password, '!')) {
       return password;
     }
@@ -78,10 +78,10 @@ public final class ClientUtils {
 
   public static boolean isValidMaxFileSize(File file) throws InvalidArgException {
     //validate file size does not exceed 64 kilobytes
-    final int MAX_FILE_SIZE = 64;
-    final long FILE_SIZE = file.length() / 1024;
-    if (FILE_SIZE > MAX_FILE_SIZE) {
-      throw new InvalidArgException("File size should not exceed " + MAX_FILE_SIZE + "kb");
+    int maxFileSize = 64;
+    long fileSize = file.length() / 1024;
+    if (fileSize > maxFileSize) {
+      throw new InvalidArgException("File size should not exceed " + maxFileSize + "kb");
     }
     return true;
   }

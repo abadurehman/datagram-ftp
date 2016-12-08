@@ -27,7 +27,7 @@ public class Server {
   private int runCount = 0;
   private FileTransfer fileTransfer;
 
-  public void run(String... args) {
+  public void run() {
 
     try {
 

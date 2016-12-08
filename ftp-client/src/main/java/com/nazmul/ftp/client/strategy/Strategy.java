@@ -10,6 +10,7 @@ import javax.swing.JTextField;
 /**
  * Strategy Pattern
  */
+@FunctionalInterface
 public interface Strategy {
 
   void doOperation(JTextField serverInput,

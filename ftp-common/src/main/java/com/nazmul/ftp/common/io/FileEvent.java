@@ -1,6 +1,7 @@
 package com.nazmul.ftp.common.io;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class FileEvent implements Serializable {
 
@@ -75,6 +76,6 @@ public class FileEvent implements Serializable {
 
   public void setFileData(byte... fileData) {
 
-    this.fileData = fileData;
+    this.fileData = Arrays.copyOf(fileData, fileData.length);
   }
 }

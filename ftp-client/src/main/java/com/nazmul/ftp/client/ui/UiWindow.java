@@ -50,6 +50,8 @@ public class UiWindow extends JFrame implements ActionListener {
 
   private static final long serialVersionUID = 1L;
 
+  private static final String STATUS = "Status: ";
+
   private static JTextField serverInput;
 
   private static JTextField portInput;
@@ -62,9 +64,9 @@ public class UiWindow extends JFrame implements ActionListener {
 
   private static JButton loginButton;
 
-  private static ClientHelper helper;
+  private final transient Authentication auth = new Authentication();
 
-  private final Authentication auth = new Authentication();
+  private transient ClientHelper helper;
 
   private JTextField remoteUploadFileNameInput;
 
@@ -89,49 +91,49 @@ public class UiWindow extends JFrame implements ActionListener {
     switch (code) {
       case ResponseCode.USER_LOGGED_IN_PROCEED:
         LOGGER.info(code + " Logged in");
-        logArea.append("Status: " + code + " Logged in\n");
+        logArea.append(STATUS + code + " Logged in\n");
         loginButton.setText("Disconnect");
         userInput.setEnabled(false);
         passwordInput.setEnabled(false);
         break;
       case ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED:
         LOGGER.info(code + " Logged out");
-        logArea.append("Status: " + code + " Logged out\n");
+        logArea.append(STATUS + code + " Logged out\n");
         loginButton.setText("Connect");
         userInput.setEnabled(true);
         passwordInput.setEnabled(true);
         break;
       case ResponseCode.INVALID_USERNAME_OR_PASSWORD:
         LOGGER.info(code + " Invalid username or password");
-        logArea.append("Status: " + code + " Invalid username or password\n");
+        logArea.append(STATUS + code + " Invalid username or password\n");
         break;
       case ResponseCode.USERNAME_OK_NEED_PASSWORD:
         LOGGER.info(code + " Username ok, need password");
-        logArea.append("Status: " + code + " Username ok, need password\n");
+        logArea.append(STATUS + code + " Username ok, need password\n");
         break;
       case ResponseCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED:
         LOGGER.info(code + " Syntax error in parameters or arguments");
-        logArea.append("Status: " + code + " Syntax error in parameters or arguments\n");
+        logArea.append(STATUS + code + " Syntax error in parameters or arguments\n");
         break;
       case ResponseCode.CLOSING_DATA_CONNECTION:
         LOGGER.info(code + " Closing data connection. Requested file action successful");
-        logArea.append("Status: " + code + " Closing data connection. Requested file action successful\n");
+        logArea.append(STATUS + code + " Closing data connection. Requested file action successful\n");
         break;
       case ResponseCode.COMMAND_OKAY:
         LOGGER.info(code + " The requested action has been successfully completed");
-        logArea.append("Status: " + code + " The requested action has been successfully completed\n");
+        logArea.append(STATUS + code + " The requested action has been successfully completed\n");
         break;
       case ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN:
         LOGGER.info(code + " File transfer was unsuccessful");
-        logArea.append("Status: " + code + " File transfer was unsuccessful\n");
+        logArea.append(STATUS + code + " File transfer was unsuccessful\n");
         break;
       case ResponseCode.CANT_OPEN_DATA_CONNECTION:
         LOGGER.info(code + " Cannot open data connection");
-        logArea.append("Status: " + code + " Cannot open data connection\n");
+        logArea.append(STATUS + code + " Cannot open data connection\n");
         break;
       case ResponseCode.REQUESTED_ACTION_NOT_TAKEN:
         LOGGER.info(code + " Requested action not taken. File unavailable (e.g., file not found, no access)");
-        logArea.append("Status: " + code + " Requested action not taken. File unavailable (e.g., file not found, no access).\n");
+        logArea.append(STATUS + code + " Requested action not taken. File unavailable (e.g., file not found, no access).\n");
         break;
       default:
         LOGGER.info("Runtime exception occurred");
@@ -297,7 +299,7 @@ public class UiWindow extends JFrame implements ActionListener {
 
       } catch (InvalidArgException inval) {
         LOGGER.warn(inval.getMessage());
-        logArea.append("Status: " + inval.getMessage() + "\n");
+        logArea.append(STATUS + inval.getMessage() + "\n");
       }
 
     } else if (event.getSource() == downloadChooser && auth.getState() instanceof LoggedInState) {
@@ -307,7 +309,7 @@ public class UiWindow extends JFrame implements ActionListener {
 
       } catch (InvalidArgException inval) {
         LOGGER.warn(inval.getMessage());
-        logArea.append("Status: " + inval.getMessage() + "\n");
+        logArea.append(STATUS + inval.getMessage() + "\n");
       }
     }
   }
@@ -386,7 +388,7 @@ public class UiWindow extends JFrame implements ActionListener {
       helper = new ClientHelperImpl(host, port);
 
     } catch (InvalidArgException | UnknownHostException | SocketException e) {
-      logArea.append("Status: " + e.getMessage() + "\n");
+      logArea.append(STATUS + e.getMessage() + "\n");
     }
   }
 
