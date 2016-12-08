@@ -1,20 +1,17 @@
 package com.nazmul.ftp.client.ui;
 
+import com.nazmul.ftp.client.Constants;
 import com.nazmul.ftp.client.proxy.ClientHelper;
 import com.nazmul.ftp.client.proxy.ClientHelperImpl;
-import com.nazmul.ftp.client.Constants;
 import com.nazmul.ftp.client.state.Authentication;
 import com.nazmul.ftp.client.state.LoggedInState;
 import com.nazmul.ftp.client.strategy.DownloadOperation;
-import com.nazmul.ftp.client.strategy.UploadOperation;
 import com.nazmul.ftp.client.strategy.OperationContext;
+import com.nazmul.ftp.client.strategy.UploadOperation;
 import com.nazmul.ftp.client.util.ClientUtils;
 import com.nazmul.ftp.common.exception.InvalidArgException;
-import com.nazmul.ftp.common.io.FileEvent;
 import com.nazmul.ftp.common.logger.LoggerSingleton;
-import com.nazmul.ftp.common.protocol.ProtocolCode;
 import com.nazmul.ftp.common.protocol.ResponseCode;
-import com.nazmul.ftp.common.util.CommonUtils;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,15 +27,14 @@ import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.IOException;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
@@ -54,73 +50,112 @@ public class UiWindow extends JFrame implements ActionListener {
 
   private static final long serialVersionUID = 1L;
 
+  public static JTextField serverInput;
+
+  public static JTextField portInput;
+
+  public static JTextField userInput;
+
+  public static JPasswordField passwordInput;
+
+  public static JTextArea logArea;
+
   static Authentication auth = new Authentication();
 
+  static JButton loginButton;
 
-  /**
-   * TOP MENU
-   **/
+  private static ClientHelper helper;
+
   JPanel top;
 
   JLabel serverLabel;
 
-  static JTextField serverInput;
-
   JLabel portLabel;
-
-  static JTextField portInput;
 
   JLabel userLabel;
 
-  static JTextField userInput;
-
   JLabel passwordLabel;
 
-  static JPasswordField passwordInput;
-
-  static JButton loginButton;
-
-  /**
-   * CENTER CONTAINER
-   **/
   JPanel center;
 
-  /**
-   * UPLOAD CONTAINER
-   **/
   JPanel upload;
 
   JTextField remoteUploadFileNameInput;
 
   JFileChooser uploadChooser;
 
-  /**
-   * DOWNLOAD CONTAINER
-   **/
   JPanel download;
 
   JTextField remoteDownloadFileNameInput;
 
   JFileChooser downloadChooser;
 
-  /**
-   * RIGHT PANEL
-   **/
-  static JTextArea logArea;
-
   JScrollPane scroll;
 
   DefaultCaret caret;
 
-  private static ClientHelper helper;
-
   public UiWindow() {
 
     super("Datagram FTP");
-
     configureWindow();
     drawUI();
     setListeners();
+    setClientHelper();
+
+  }
+
+  public static void onResponseCode(short code) {
+
+    switch (code) {
+      case ResponseCode.USER_LOGGED_IN_PROCEED:
+        LOGGER.info(code + " Logged in");
+        logArea.append("Status: " + code + " Logged in\n");
+        loginButton.setText("Disconnect");
+        userInput.setEnabled(false);
+        passwordInput.setEnabled(false);
+        break;
+      case ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED:
+        LOGGER.info(code + " Logged out");
+        logArea.append("Status: " + code + " Logged out\n");
+        loginButton.setText("Connect");
+        userInput.setEnabled(true);
+        passwordInput.setEnabled(true);
+        break;
+      case ResponseCode.INVALID_USERNAME_OR_PASSWORD:
+        LOGGER.info(code + " Invalid username or password");
+        logArea.append("Status: " + code + " Invalid username or password\n");
+        break;
+      case ResponseCode.USERNAME_OK_NEED_PASSWORD:
+        LOGGER.info(code + " Username ok, need password");
+        logArea.append("Status: " + code + " Username ok, need password\n");
+        break;
+      case ResponseCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED:
+        LOGGER.info(code + " Syntax error in parameters or arguments");
+        logArea.append("Status: " + code + " Syntax error in parameters or arguments\n");
+        break;
+      case ResponseCode.CLOSING_DATA_CONNECTION:
+        LOGGER.info(code + " Closing data connection. Requested file action successful");
+        logArea.append("Status: " + code + " Closing data connection. Requested file action successful\n");
+        break;
+      case ResponseCode.COMMAND_OKAY:
+        LOGGER.info(code + " The requested action has been successfully completed");
+        logArea.append("Status: " + code + " The requested action has been successfully completed\n");
+        break;
+      case ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN:
+        LOGGER.info(code + " File transfer was unsuccessful");
+        logArea.append("Status: " + code + " File transfer was unsuccessful\n");
+        break;
+      case ResponseCode.CANT_OPEN_DATA_CONNECTION:
+        LOGGER.info(code + " Cannot open data connection");
+        logArea.append("Status: " + code + " Cannot open data connection\n");
+        break;
+      case ResponseCode.REQUESTED_ACTION_NOT_TAKEN:
+        LOGGER.info(code + " Requested action not taken. File unavailable (e.g., file not found, no access)");
+        logArea.append("Status: " + code + " Requested action not taken. File unavailable (e.g., file not found, no access).\n");
+        break;
+      default:
+        LOGGER.info("Runtime exception occurred");
+    }
   }
 
   private void setListeners() {
@@ -182,10 +217,10 @@ public class UiWindow extends JFrame implements ActionListener {
     upload = new JPanel();
     upload.setLayout(new BorderLayout());
     upload.setBorder(
-                    BorderFactory
-                            .createTitledBorder(
-                                    BorderFactory
-                                            .createLineBorder(Color.GRAY), "Upload a file"));
+            BorderFactory
+                    .createTitledBorder(
+                            BorderFactory
+                                    .createLineBorder(Color.GRAY), "Upload a file"));
     remoteUploadFileNameInput = new JTextField(Constants.DEFAULT_REMOTE_INPUT);
 
     //Simulate prompt
@@ -268,15 +303,11 @@ public class UiWindow extends JFrame implements ActionListener {
     setLayout(new BorderLayout());
   }
 
-  private void displayError(String s) {
-
-    JOptionPane.showMessageDialog(this, s, "Error: ", JOptionPane.WARNING_MESSAGE);
-  }
-
   @Override
   public void actionPerformed(ActionEvent event) {
 
     if (event.getSource() == loginButton) {
+      setAuthenticationContext(auth);
       auth.authenticate();
 
     } else if (event.getSource() == uploadChooser && auth.getState() instanceof LoggedInState) {
@@ -301,111 +332,8 @@ public class UiWindow extends JFrame implements ActionListener {
     }
   }
 
-  public static void onResponseCode(short code) {
-
-    switch (code) {
-      case ResponseCode.USER_LOGGED_IN_PROCEED:
-        LOGGER.info(code + " Logged in");
-        logArea.append("Status: " + code + " Logged in\n");
-        loginButton.setText("Disconnect");
-        userInput.setEnabled(false);
-        passwordInput.setEnabled(false);
-        break;
-      case ResponseCode.USER_LOGGED_OUT_SERVICE_TERMINATED:
-        LOGGER.info(code + " Logged out");
-        logArea.append("Status: " + code + " Logged out\n");
-        loginButton.setText("Connect");
-        userInput.setEnabled(true);
-        passwordInput.setEnabled(true);
-        break;
-      case ResponseCode.INVALID_USERNAME_OR_PASSWORD:
-        LOGGER.info(code + " Invalid username or password");
-        logArea.append("Status: " + code + " Invalid username or password\n");
-        break;
-      case ResponseCode.USERNAME_OK_NEED_PASSWORD:
-        LOGGER.info(code + " Username ok, need password");
-        logArea.append("Status: " + code + " Username ok, need password\n");
-        break;
-      case ResponseCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED:
-        LOGGER.info(code + " Syntax error in parameters or arguments");
-        logArea.append("Status: " + code + " Syntax error in parameters or arguments\n");
-        break;
-      case ResponseCode.CLOSING_DATA_CONNECTION:
-        LOGGER.info(code + " Closing data connection. Requested file action successful");
-        logArea.append("Status: " + code + " Closing data connection. Requested file action successful\n");
-        break;
-      case ResponseCode.COMMAND_OKAY:
-        LOGGER.info(code + " The requested action has been successfully completed");
-        logArea.append("Status: " + code + " The requested action has been successfully completed\n");
-        break;
-      case ResponseCode.REQUESTED_FILE_ACTION_NOT_TAKEN:
-        LOGGER.info(code + " File transfer was unsuccessful");
-        logArea.append("Status: " + code + " File transfer was unsuccessful\n");
-        break;
-      case ResponseCode.CANT_OPEN_DATA_CONNECTION:
-        LOGGER.info(code + " Cannot open data connection");
-        logArea.append("Status: " + code + " Cannot open data connection\n");
-        break;
-      case ResponseCode.REQUESTED_ACTION_NOT_TAKEN:
-        LOGGER.info(code + " Requested action not taken. File unavailable (e.g., file not found, no access)");
-        logArea.append("Status: " + code + " Requested action not taken. File unavailable (e.g., file not found, no access).\n");
-        break;
-      default:
-        LOGGER.info("Runtime exception occurred");
-    }
-  }
-
-  public static void login() {
-
-    String responseCode = "";
-    try {
-      String host = ClientUtils.validHostAddress(serverInput);
-      String port = ClientUtils.validServerPort(portInput);
-      String username = ClientUtils.validUsername(userInput);
-      String password = ClientUtils.validPassword(passwordInput);
-
-      helper = new ClientHelperImpl(host, port);
-      logArea.append("Status: Logging into " + host + "\n");
-      responseCode = helper.authenticate(Constants.LOGIN, username, password);
-
-    } catch (IOException | InvalidArgException io) {
-      logArea.append("Status: " + io.getMessage() + "\n");
-
-    } finally {
-      // successfully logged in
-      if (responseCode != null && !responseCode.isEmpty()) {
-        onResponseCode(Short.parseShort(responseCode.trim()));
-      }
-    }
-
-  }
-
-  public static void logOut() {
-
-    String responseCode = "";
-    try {
-      String host = ClientUtils.validHostAddress(serverInput);
-      String username = ClientUtils.validUsername(userInput);
-      String password = ClientUtils.validPassword(passwordInput);
-
-      logArea.append("Status: Logging out of " + host + "\n");
-      responseCode = helper.sendMessageRequest(Constants.LOGOUT + username + password);
-
-    } catch (IOException | InvalidArgException io) {
-      logArea.append("Status: " + io.getMessage() + "\n");
-    } finally {
-      if (responseCode != null && !responseCode.isEmpty()) {
-        onResponseCode(Short.parseShort(responseCode.trim()));
-        try {
-          helper.closeSocket();
-        } catch (SocketException e) {
-          logArea.append("Status: " + e.getMessage() + "\n");
-        }
-      }
-    }
-  }
-
   private void uploadFile(String command) throws InvalidArgException {
+
     File file = uploadChooser.getSelectedFile();
 
     ClientUtils.hasSelectedAFile(file);
@@ -427,8 +355,9 @@ public class UiWindow extends JFrame implements ActionListener {
   }
 
   private void downloadFile(String command) throws InvalidArgException {
-    //check if file is selected
+
     File file = downloadChooser.getSelectedFile();
+
     ClientUtils.hasSelectedAFile(file);
     ClientUtils.doesExist(file);
 
@@ -448,6 +377,7 @@ public class UiWindow extends JFrame implements ActionListener {
   }
 
   private void setOperationContext(OperationContext context) {
+
     context.setServerInput(serverInput);
     context.setPortInput(portInput);
     context.setUserInput(userInput);
@@ -455,7 +385,40 @@ public class UiWindow extends JFrame implements ActionListener {
     context.setUploadChooser(uploadChooser);
     context.setDownloadChooser(downloadChooser);
     context.setLogArea(logArea);
-    context.setHelper(helper);
+  }
+
+  private void setAuthenticationContext(Authentication auth) {
+
+    auth.setServerInput(serverInput);
+    auth.setPortInput(portInput);
+    auth.setUserInput(userInput);
+    auth.setPasswordInput(passwordInput);
+    auth.setLogArea(logArea);
+    auth.setHelper(helper);
+  }
+
+  private void setClientHelper() {
+
+    try {
+      String host = ClientUtils.validHostAddress(serverInput);
+      String port = ClientUtils.validServerPort(portInput);
+      helper = new ClientHelperImpl(host, port);
+
+    } catch (InvalidArgException | UnknownHostException | SocketException e) {
+      logArea.append("Status: " + e.getMessage() + "\n");
+    }
+  }
+
+  private static class CustomWindowAdapter extends WindowAdapter {
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+
+      if (auth.getState() instanceof LoggedInState) {
+        LOGGER.info("Logout request sent");
+        auth.authenticate();
+      }
+    }
   }
 
   private class UploadFocusListener implements FocusListener {
@@ -492,18 +455,6 @@ public class UiWindow extends JFrame implements ActionListener {
 
       if ("".equalsIgnoreCase(remoteDownloadFileNameInput.getText())) {
         remoteDownloadFileNameInput.setText(Constants.DEFAULT_REMOTE_INPUT);
-      }
-    }
-  }
-
-  private static class CustomWindowAdapter extends WindowAdapter {
-
-    @Override
-    public void windowClosing(WindowEvent e) {
-
-      if (auth.getState() instanceof LoggedInState) {
-        LOGGER.info("Logout request sent");
-        logOut();
       }
     }
   }

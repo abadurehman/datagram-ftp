@@ -24,6 +24,7 @@ public class ClientHelperImpl implements ClientHelper {
     mySocket = new DataSocketImpl();
   }
 
+
   @Override
   public String authenticate(String opcode, String user, String pass)
           throws IOException {
