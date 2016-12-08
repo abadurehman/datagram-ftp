@@ -35,12 +35,14 @@ My aim is to achieve at least 8 design patterns.
       Code is still not completely following the OCP
       Need to remove the switch case smell by Strategy/State pattern
 
+## 5. Strategy Pattern (Client)
+     Cleaning up code from the UiWindow
+     Single Responsibility Principle
+
 # Possible Implementation
 Here are the possible design patterns I could implement.
 This includes code smells and code principle violations.
 
-## requestByCode (Server)
-    Switch Case Smell -> Fix by Strategy and Command pattern
 
 ## Swing UI (Client)
     MVC pattern (Observer + Composite)

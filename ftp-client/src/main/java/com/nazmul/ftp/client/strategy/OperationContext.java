@@ -1,6 +1,12 @@
 package com.nazmul.ftp.client.strategy;
 
 import com.nazmul.ftp.client.proxy.ClientHelper;
+import com.nazmul.ftp.client.proxy.ClientHelperImpl;
+import com.nazmul.ftp.client.util.ClientUtils;
+import com.nazmul.ftp.common.exception.InvalidArgException;
+
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import javax.swing.JFileChooser;
 import javax.swing.JPasswordField;
@@ -61,9 +67,13 @@ public class OperationContext {
     this.logArea = logArea;
   }
 
-  public void setHelper(ClientHelper helper) {
+  public ClientHelper getHelper()
+          throws InvalidArgException, SocketException, UnknownHostException {
+    String host = ClientUtils.validHostAddress(serverInput);
+    String port = ClientUtils.validServerPort(portInput);
 
-    this.helper = helper;
+    helper = new ClientHelperImpl(host, port);
+    return helper;
   }
 
   public void executeOperation(){
