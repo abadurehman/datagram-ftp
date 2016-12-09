@@ -1,4 +1,4 @@
-package com.nazmul.ftp.client.state;
+package com.nazmul.ftp.client.auth;
 
 import com.nazmul.ftp.client.Constants;
 import com.nazmul.ftp.client.proxy.ClientHelper;
