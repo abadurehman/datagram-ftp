@@ -1,4 +1,4 @@
-package com.nazmul.ftp.client.strategy;
+package com.nazmul.ftp.client.transfer;
 
 import com.nazmul.ftp.client.proxy.ClientHelper;
 
