@@ -1,4 +1,4 @@
-package com.nazmul.ftp.server.auth;
+package com.nazmul.ftp.server.user;
 
 import java.util.ArrayList;
 import java.util.Iterator;

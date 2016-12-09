@@ -4,11 +4,9 @@ import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.logger.LoggerSingleton;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
 import com.nazmul.ftp.common.protocol.ResponseCode;
-import com.nazmul.ftp.server.auth.AbstractUser;
-import com.nazmul.ftp.server.auth.RegisteredUser;
-import com.nazmul.ftp.server.auth.UserRepository;
-import com.nazmul.ftp.server.auth.service.UserService;
-import com.nazmul.ftp.server.auth.service.UserServiceImpl;
+import com.nazmul.ftp.server.user.AbstractUser;
+import com.nazmul.ftp.server.user.RegisteredUser;
+import com.nazmul.ftp.server.user.UserRepository;
 import com.nazmul.ftp.server.model.DataPacket;
 
 import java.io.IOException;
@@ -21,12 +19,10 @@ public class Authentication {
   private static final LoggerSingleton LOGGER = LoggerSingleton.INSTANCE;
 
   private final DataPacket dataPacket;
-//  private User user;
   private AbstractUser user;
 
   public Authentication(DataPacket dataPacket) {
     this.dataPacket = dataPacket;
-//    user = new User();
     user = new RegisteredUser();
   }
 
@@ -38,11 +34,6 @@ public class Authentication {
     processLogout();
   }
 
-//  public User getUser() {
-//
-//    return user;
-//  }
-
   public AbstractUser getUser() {
 
     return user;
@@ -52,7 +43,6 @@ public class Authentication {
 
     final AbstractUser users = new UserRepository();
     RegisteredUser valUser = (RegisteredUser) users.findByUsername(username);
-//    User valUser = userService.findByUsername(username);
 
     if (valUser == null) {
       throw new InvalidArgException(String.valueOf(ResponseCode.INVALID_USERNAME_OR_PASSWORD));
