@@ -1,6 +1,6 @@
 package com.nazmul.ftp.client.transfer;
 
-import com.nazmul.ftp.client.proxy.ClientHelper;
+import com.nazmul.ftp.client.socket.ClientHelper;
 
 import javax.swing.JFileChooser;
 import javax.swing.JPasswordField;

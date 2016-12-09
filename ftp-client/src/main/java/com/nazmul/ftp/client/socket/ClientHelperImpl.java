@@ -1,4 +1,4 @@
-package com.nazmul.ftp.client.proxy;
+package com.nazmul.ftp.client.socket;
 
 import com.nazmul.ftp.common.DataSocketImpl;
 import com.nazmul.ftp.common.io.FileEvent;

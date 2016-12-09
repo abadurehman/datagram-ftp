@@ -1,7 +1,7 @@
 package com.nazmul.ftp.client.transfer;
 
 import com.nazmul.ftp.client.Constants;
-import com.nazmul.ftp.client.proxy.ClientHelper;
+import com.nazmul.ftp.client.socket.ClientHelper;
 import com.nazmul.ftp.client.ui.UiWindow;
 import com.nazmul.ftp.client.util.ClientUtils;
 import com.nazmul.ftp.common.exception.InvalidArgException;

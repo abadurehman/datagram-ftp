@@ -1,8 +1,8 @@
 package com.nazmul.ftp.client.ui;
 
 import com.nazmul.ftp.client.Constants;
-import com.nazmul.ftp.client.proxy.ClientHelper;
-import com.nazmul.ftp.client.proxy.ClientHelperImpl;
+import com.nazmul.ftp.client.socket.ClientHelper;
+import com.nazmul.ftp.client.socket.ClientHelperImpl;
 import com.nazmul.ftp.client.auth.Authentication;
 import com.nazmul.ftp.client.auth.LoggedInState;
 import com.nazmul.ftp.client.transfer.DownloadOperation;
