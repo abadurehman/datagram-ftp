@@ -1,19 +1,20 @@
-package com.nazmul.ftp.server.command;
+package com.nazmul.ftp.server.request;
 
 import java.io.IOException;
 
 /**
- * File download
+ * File upload command
  */
-public class FileDownloadCommand implements Command {
+public class FileUploadCommand implements Command {
+
   private final FileTransfer file;
 
-  public FileDownloadCommand(FileTransfer file) {
+  public FileUploadCommand(FileTransfer file) {
     this.file = file;
   }
 
   @Override
   public void execute() throws IOException, ClassNotFoundException {
-    file.download();
+    file.upload();
   }
 }

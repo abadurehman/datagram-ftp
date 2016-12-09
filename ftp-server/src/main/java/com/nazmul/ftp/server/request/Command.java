@@ -1,4 +1,4 @@
-package com.nazmul.ftp.server.command;
+package com.nazmul.ftp.server.request;
 
 import java.io.IOException;
 

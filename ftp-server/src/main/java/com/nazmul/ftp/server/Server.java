@@ -7,13 +7,13 @@ import com.nazmul.ftp.common.exception.InvalidArgException;
 import com.nazmul.ftp.common.logger.LoggerSingleton;
 import com.nazmul.ftp.common.protocol.ProtocolCode;
 import com.nazmul.ftp.common.util.CommonUtils;
-import com.nazmul.ftp.server.command.Authentication;
-import com.nazmul.ftp.server.command.FileDownloadCommand;
-import com.nazmul.ftp.server.command.FileTransfer;
-import com.nazmul.ftp.server.command.FileUploadCommand;
-import com.nazmul.ftp.server.command.LoginCommand;
-import com.nazmul.ftp.server.command.LogoutCommand;
-import com.nazmul.ftp.server.command.Operation;
+import com.nazmul.ftp.server.request.Authentication;
+import com.nazmul.ftp.server.request.FileDownloadCommand;
+import com.nazmul.ftp.server.request.FileTransfer;
+import com.nazmul.ftp.server.request.FileUploadCommand;
+import com.nazmul.ftp.server.request.LoginCommand;
+import com.nazmul.ftp.server.request.LogoutCommand;
+import com.nazmul.ftp.server.request.Operation;
 import com.nazmul.ftp.server.model.DataPacket;
 
 import java.io.IOException;
@@ -23,8 +23,11 @@ public class Server {
   private static final LoggerSingleton LOGGER = LoggerSingleton.INSTANCE;
 
   private Operation operation;
+
   private Authentication auth;
+
   private int runCount = 0;
+
   private FileTransfer fileTransfer;
 
   public void run() {
@@ -43,7 +46,7 @@ public class Server {
         operation = new Operation();
         DataPacket dataPacket = new DataPacket(opcode, message, request, socket);
 
-        if (runCount == 0 ) {
+        if (runCount == 0) {
           auth = new Authentication(dataPacket);
           runCount++;
         } else if (auth.getUser().isAuthenticated()) {
