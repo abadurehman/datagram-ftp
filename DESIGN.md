@@ -39,9 +39,12 @@ My aim is to achieve at least 8 design patterns.
      Cleaning up code from the UiWindow
      Single Responsibility Principle
 
+## 6. Composite Pattern (Server)
+     Using pattern to manage users
+
+
 # Possible Implementation
-Here are the possible design patterns I could implement.
-This includes code smells and code principle violations.
+Here are the possible design patterns I could implement. This includes code smells and code principle violations.
 
 
 ## Swing UI (Client)
@@ -52,3 +55,7 @@ This includes code smells and code principle violations.
 
 ## Template Method (Client, Server)
     The request processes
+
+## Observer Pattern (Client)
+    Display logArea (JTextArea) messages using observer pattern
+    This will make the classes as a SRP
