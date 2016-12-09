@@ -1,11 +1,9 @@
 package com.nazmul.ftp.server.auth;
 
-import java.io.Serializable;
-import java.util.Objects;
-
-public class User implements Serializable {
-
-  private static final long serialVersionUID = 1L;
+/**
+ * RegisteredUser implements the "lowest common denominator"
+ */
+public class RegisteredUser extends AbstractUser {
 
   private String username;
 
@@ -13,79 +11,62 @@ public class User implements Serializable {
 
   private boolean authenticated;
 
-  public User() {
-    //needed for serialization
+  public RegisteredUser() {
+
   }
 
-  public User(String username, String password) {
-
-    this.username = username;
-    this.password = password;
-  }
-
-  public User(String username, String password, boolean authenticated) {
+  public RegisteredUser(String username, String password, boolean authenticated) {
 
     this.username = username;
     this.password = password;
     this.authenticated = authenticated;
   }
 
+  @Override
   public String getUsername() {
 
     return username;
   }
 
+  @Override
   public void setUsername(String username) {
 
     this.username = username;
   }
 
+  @Override
   public String getPassword() {
 
     return password;
   }
 
+  @Override
   public void setPassword(String password) {
 
     this.password = password;
   }
 
+  @Override
   public boolean isAuthenticated() {
 
     return authenticated;
   }
 
+  @Override
   public void setAuthenticated(boolean authenticated) {
 
     this.authenticated = authenticated;
   }
 
   @Override
-  public boolean equals(Object o) {
+  public void print() {
 
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    User user = (User) o;
-    return Objects.equals(username, user.username);
-  }
-
-  @Override
-  public int hashCode() {
-
-    return Objects.hash(username);
-  }
-
-  @Override
-  public String toString() {
-
-    final StringBuilder sb = new StringBuilder("User{");
+    final StringBuilder sb = new StringBuilder("RegisteredUser{");
     sb.append("username='").append(username).append('\'');
     sb.append(", authenticated=").append(authenticated);
     sb.append('}');
-    return sb.toString();
+
+    System.out.println(sb);
   }
+
 }
