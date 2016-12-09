@@ -49,3 +49,6 @@ This includes code smells and code principle violations.
 
 ## Decorator (Common)
     File input and output (IO)
+
+## Template Method (Client, Server)
+    The request processes
